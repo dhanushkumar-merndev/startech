@@ -48,7 +48,10 @@
   }
 
   body {
-    background: var(--color-paper);
+    background-color: var(--color-paper);
+    background-image: url("/y-so-serious-white.png");
+    background-repeat: repeat;
+    background-size: 240px 240px;
     color: var(--color-ink);
     font-family: var(--font-sans);
     letter-spacing: -0.011em;

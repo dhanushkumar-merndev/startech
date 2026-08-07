@@ -38,11 +38,11 @@ export function PageHero({ eyebrow, title, lead, children }: PageHeroProps) {
     >
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-50"
+        className="pointer-events-none absolute inset-0 opacity-90"
         style={{
-          backgroundImage:
-            "linear-gradient(to right, #e7e5e0 1px, transparent 1px), linear-gradient(to bottom, #e7e5e0 1px, transparent 1px)",
-          backgroundSize: "clamp(80px, 8vw, 130px) clamp(80px, 8vw, 130px)",
+          backgroundImage: "url('/y-so-serious-white.png')",
+          backgroundRepeat: "repeat",
+          backgroundSize: "240px 240px",
           maskImage: "radial-gradient(110% 80% at 15% 0%, #000 10%, transparent 72%)",
           WebkitMaskImage: "radial-gradient(110% 80% at 15% 0%, #000 10%, transparent 72%)",
         }}

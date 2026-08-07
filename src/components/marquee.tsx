@@ -100,7 +100,7 @@ export function Marquee({ items, label, duration = 38, invert = false }: Marquee
       {items.map((item) => (
         <Fragment key={item}>
           <span
-            className={`px-8 font-display text-[clamp(1rem,1.6vw,1.35rem)] font-medium tracking-[-0.02em] whitespace-nowrap ${
+            className={`px-4 sm:px-8 font-display text-[clamp(0.95rem,1.6vw,1.35rem)] font-medium tracking-[-0.02em] whitespace-nowrap ${
               invert ? "text-white/55" : "text-ink/45"
             }`}
           >

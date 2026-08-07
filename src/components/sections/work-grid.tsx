@@ -61,19 +61,19 @@ export function WorkGrid({ limit, bare = false }: WorkGridProps) {
   );
 
   return (
-    <section ref={root} className="shell py-24 md:py-32">
+    <section ref={root} className="shell py-16 sm:py-24 md:py-32">
       {!bare && (
-        <div className="mb-14 flex flex-wrap items-end justify-between gap-6">
+        <div className="mb-10 sm:mb-14 flex flex-wrap items-end justify-between gap-4 sm:gap-6">
           <div>
             <Reveal>
               <span className="eyebrow text-brand">Selected work</span>
             </Reveal>
-            <SplitHeading className="d2 mt-5 font-display">
+            <SplitHeading className="d2 mt-4 sm:mt-5 font-display">
               Shipped, and still running.
             </SplitHeading>
           </div>
           <Reveal delay={100}>
-            <Link href="/work" className="btn btn-outline">
+            <Link href="/work" className="btn btn-outline text-xs sm:text-sm !py-2.5 !px-5">
               All case studies
             </Link>
           </Reveal>
@@ -88,13 +88,13 @@ export function WorkGrid({ limit, bare = false }: WorkGridProps) {
             data-cursor="view"
             data-cursor-label="View"
             // First card runs full width for a stronger entry into the grid.
-            className={`work-card group block overflow-hidden rounded-[22px] border border-line transition-colors duration-500 hover:border-ink/30 ${
+            className={`work-card group block overflow-hidden rounded-[20px] sm:rounded-[22px] border border-line transition-colors duration-500 hover:border-ink/30 ${
               i === 0 && !bare ? "md:col-span-2" : ""
             }`}
           >
             <div
               className={`relative overflow-hidden ${
-                i === 0 && !bare ? "aspect-[16/7]" : "aspect-[16/10]"
+                i === 0 && !bare ? "aspect-[4/3] sm:aspect-[16/7]" : "aspect-[4/3] sm:aspect-[16/10]"
               }`}
             >
               <div className="work-art absolute -inset-y-[10%] inset-x-0 transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.045]">
@@ -102,26 +102,26 @@ export function WorkGrid({ limit, bare = false }: WorkGridProps) {
               </div>
             </div>
 
-            <div className="flex flex-col gap-5 p-6 md:flex-row md:items-end md:justify-between md:p-8">
+            <div className="flex flex-col gap-4 p-5 sm:p-6 md:flex-row md:items-end md:justify-between md:p-8">
               <div>
-                <div className="flex items-center gap-3 text-[0.8125rem] text-muted">
+                <div className="flex items-center gap-3 text-[0.75rem] sm:text-[0.8125rem] text-muted">
                   <span>{study.client}</span>
                   <span className="size-1 rounded-full bg-line" />
                   <span>{study.sector}</span>
                 </div>
-                <h3 className="mt-3 max-w-lg font-display text-[clamp(1.35rem,2.4vw,1.9rem)] leading-[1.05] tracking-[-0.035em]">
+                <h3 className="mt-2.5 sm:mt-3 max-w-lg font-display text-[clamp(1.25rem,2.4vw,1.9rem)] leading-[1.05] tracking-[-0.035em]">
                   {study.title}
                 </h3>
-                <p className="mt-3 max-w-lg text-[0.9375rem] leading-relaxed text-muted">
+                <p className="mt-2 sm:mt-3 max-w-lg text-[0.875rem] sm:text-[0.9375rem] leading-relaxed text-muted">
                   {study.result}
                 </p>
               </div>
 
               <div className="shrink-0 text-left md:text-right">
-                <div className="font-display text-[clamp(1.9rem,3.4vw,2.75rem)] leading-none tracking-[-0.045em] text-brand">
+                <div className="font-display text-[clamp(1.75rem,3.4vw,2.75rem)] leading-none tracking-[-0.045em] text-brand">
                   {study.metric.value}
                 </div>
-                <div className="mt-2 text-xs text-muted">{study.metric.label}</div>
+                <div className="mt-1.5 sm:mt-2 text-[0.7rem] sm:text-xs text-muted">{study.metric.label}</div>
               </div>
             </div>
           </Link>

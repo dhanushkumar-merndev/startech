@@ -5,6 +5,8 @@ import { Reveal } from "@/components/reveal";
 import { LiveCounter, LiveGraph, TypewriterText } from "@/components/live-stats";
 import { MOTION_OK, gsap, useGSAP } from "@/lib/gsap";
 
+const DESKTOP_MOTION = `${MOTION_OK} and (min-width: 768px)`;
+
 const DASHBOARD_NAV = [
   { id: "overview", label: "Overview", icon: "⌘", count: null },
   { id: "leads", label: "Leads", icon: "◉", count: "12" },
@@ -206,7 +208,7 @@ export function DashboardWindow() {
       if (!preview || !enquiry || !automation) return;
 
       const mm = gsap.matchMedia();
-      mm.add(MOTION_OK, () => {
+      mm.add(DESKTOP_MOTION, () => {
         gsap.set(preview, { transformPerspective: 1500, transformOrigin: "50% 10%" });
 
         gsap.fromTo(
@@ -383,16 +385,16 @@ export function DashboardWindow() {
   );
 
   return (
-    <section ref={stage} className="shell mt-12 pb-4 md:mt-20 md:pb-10">
+    <section ref={stage} className="shell mt-3 pb-2 md:mt-20 md:pb-10">
       <div className="relative mx-auto max-w-6xl">
         <div aria-hidden className="pointer-events-none absolute -left-10 top-16 hidden size-40 rounded-full border border-brand/25 lg:block" />
         <div aria-hidden className="pointer-events-none absolute -right-7 bottom-8 hidden size-24 rounded-[28px] border border-line bg-bone lg:block" />
         <Reveal className="relative z-10">
-          <div className="dashboard-preview relative overflow-hidden rounded-[24px] border border-line bg-paper shadow-[0_40px_100px_-44px_rgba(0,0,0,0.38)]">
+          <div className="dashboard-preview relative overflow-hidden rounded-[18px] border border-line bg-paper shadow-[0_26px_60px_-38px_rgba(0,0,0,0.35)] sm:rounded-[24px] sm:shadow-[0_40px_100px_-44px_rgba(0,0,0,0.38)]">
           <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden rounded-[24px] z-20">
             <div className="dashboard-sweep absolute inset-y-0 w-1/3 skew-x-12 bg-gradient-to-r from-transparent via-white/[0.25] to-transparent" />
           </div>
-          <div className="flex items-center justify-between border-b border-line bg-bone px-4 py-3 sm:px-5">
+          <div className="flex items-center justify-between border-b border-line bg-bone px-3 py-2.5 sm:px-5 sm:py-3">
             <div className="flex items-center gap-2" aria-hidden>
               <span className="live-pulse-dot size-2 rounded-full bg-brand" />
               <span className="size-2 rounded-full bg-ink/15" />
@@ -404,8 +406,8 @@ export function DashboardWindow() {
             <span className="hidden text-xs text-muted sm:block">Live overview</span>
           </div>
 
-          <div className="grid min-h-[300px] grid-cols-[56px_1fr] sm:min-h-[410px] sm:grid-cols-[168px_1fr]">
-            <aside className="border-r border-line bg-bone p-3 sm:p-4">
+          <div className="grid min-h-0 grid-cols-[48px_1fr] sm:min-h-[410px] sm:grid-cols-[168px_1fr]">
+            <aside className="border-r border-line bg-bone p-2.5 sm:p-4">
               <div className="hidden h-full flex-col sm:flex">
                 <div className="flex items-center gap-2.5">
                   <span className="grid size-7 place-items-center rounded-lg bg-ink font-display text-xs font-semibold text-white">S</span>
@@ -474,11 +476,11 @@ export function DashboardWindow() {
               </div>
             </aside>
 
-            <div className="p-4 sm:p-7">
+            <div className="p-3 sm:p-7">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
                   <span className="eyebrow text-brand">{panel.eyebrow}</span>
-                  <h2 className="mt-2 font-display text-[clamp(1.45rem,2.5vw,2rem)] tracking-[-0.04em]">
+                  <h2 className="mt-1.5 font-display text-[clamp(1.2rem,2.5vw,2rem)] tracking-[-0.04em] sm:mt-2">
                     {panel.title}
                   </h2>
                 </div>
@@ -490,9 +492,9 @@ export function DashboardWindow() {
                 </div>
               </div>
 
-              <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+              <div className="mt-4 grid grid-cols-2 gap-2 sm:mt-6 sm:gap-3 lg:grid-cols-4">
                 {panel.metrics.map((item) => (
-                  <div key={item.label} className="rounded-xl border border-line bg-bone p-3.5">
+                  <div key={item.label} className="rounded-lg border border-line bg-bone p-2.5 sm:rounded-xl sm:p-3.5">
                     <div className="flex items-center justify-between gap-2 text-[0.6875rem] text-muted">
                       <span>{item.label}</span>
                       <span className="text-brand">{item.change}</span>
@@ -512,28 +514,28 @@ export function DashboardWindow() {
                 ))}
               </div>
 
-              <div className="mt-4 grid gap-3 lg:grid-cols-[1.35fr_0.9fr]">
-                <div className="rounded-xl border border-line p-4">
+              <div className="mt-3 hidden gap-2 sm:mt-4 sm:grid sm:gap-3 lg:grid-cols-[1.35fr_0.9fr]">
+                <div className="rounded-lg border border-line p-3 sm:rounded-xl sm:p-4">
                   <div className="flex items-center justify-between text-xs text-muted">
                     <span>{panel.graphTitle}</span>
                     <span className="text-brand">{panel.graphChange}</span>
                   </div>
-                  <div className="mt-7">
-                    <LiveGraph key={activePanel} baseHeights={panel.graphHeights} accentIndex={panel.graphAccent} heightClass="h-20" />
+                  <div className="mt-4 sm:mt-7">
+                    <LiveGraph key={activePanel} baseHeights={panel.graphHeights} accentIndex={panel.graphAccent} heightClass="h-14 sm:h-20" />
                   </div>
                 </div>
-                <div className="rounded-xl bg-ink p-4 text-white">
+                <div className="rounded-lg bg-ink p-3 text-white sm:rounded-xl sm:p-4">
                   <div className="text-xs text-white/50">{panel.spotlightLabel}</div>
                   <div className="dash-stat-num mt-4 font-display text-3xl tracking-[-0.04em]">
                     <LiveCounter initial={panel.spotlightValue} variance={panel.spotlightVariance} startAtZero active={isVisible} cycle={counterCycle} />
                   </div>
-                  <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-white/15">
+                  <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/15 sm:mt-5">
                     <div className="dash-progress-fill h-full rounded-full bg-brand" style={{ width: panel.spotlightProgress }} />
                   </div>
                   <div className="mt-2 text-[0.6875rem] text-white/45">{panel.spotlightProgress} {panel.spotlightCopy}</div>
                 </div>
               </div>
-              <div className="mt-4 grid gap-3 sm:grid-cols-[1.35fr_0.9fr]">
+              <div className="mt-3 hidden gap-3 sm:mt-4 sm:grid sm:grid-cols-[1.35fr_0.9fr]">
                 <div className="rounded-xl border border-line p-4">
                   <div className="flex items-center justify-between text-xs text-muted">
                     <span>{panel.activityTitle}</span>
@@ -571,14 +573,6 @@ export function DashboardWindow() {
           <span className="eyebrow text-brand-hot">Automation</span>
           <div className="mt-3 text-sm font-medium">Lead follow-up sent</div>
           <div className="mt-2 text-xs text-white/45">Just now · WhatsApp</div>
-        </div>
-        <div className="dashboard-float-card pointer-events-none absolute -left-8 bottom-20 z-20 hidden w-36 rounded-xl border border-line bg-paper p-3 shadow-[0_18px_40px_-24px_rgba(0,0,0,0.4)] lg:block">
-          <div className="flex items-center justify-between text-[0.6rem] uppercase tracking-[0.13em] text-muted">
-            <span>Lead score</span>
-            <span className="text-brand">Hot</span>
-          </div>
-          <div className="mt-2 font-display text-2xl tracking-[-0.05em]">92</div>
-          <div className="mt-1 text-[0.65rem] text-muted">Ready for sales</div>
         </div>
         <div className="dashboard-float-card pointer-events-none absolute -right-7 top-24 z-20 hidden w-36 rounded-xl border border-brand/25 bg-paper p-3 shadow-[0_18px_40px_-24px_rgba(0,0,0,0.42)] lg:block">
           <div className="eyebrow text-brand">Today</div>

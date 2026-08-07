@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { PageHero } from "@/components/page-hero";
 import { Reveal } from "@/components/reveal";
 import { Cta } from "@/components/sections/cta";
-import { getService, services } from "@/lib/site";
+import { getService, getSubServiceSlug, services } from "@/lib/site";
 
 type ServicePageProps = {
   params: Promise<{ service: string }>;
@@ -45,13 +45,17 @@ export default async function ServicePage({ params }: ServicePageProps) {
           <div className="grid gap-4 sm:grid-cols-2 lg:col-span-7 lg:col-start-6">
             {service.children.map((child, index) => (
               <Reveal key={child.name} delay={index * 45}>
-                <article className="h-full rounded-[22px] border border-line bg-paper p-6 transition-colors duration-300 hover:border-ink/30 md:p-7">
+                <Link
+                  href={`/services/${service.id}/${getSubServiceSlug(child.name)}`}
+                  className="group block h-full rounded-[22px] border border-line bg-paper/85 p-6 transition-colors duration-300 hover:border-ink hover:bg-ink md:p-7"
+                >
                   <span className="font-mono text-xs text-brand">{String(index + 1).padStart(2, "0")}</span>
-                  <h3 className="mt-6 font-display text-xl tracking-[-0.03em]">{child.name}</h3>
-                  <p className="mt-3 text-sm leading-relaxed text-muted">
+                  <h3 className="mt-6 font-display text-xl tracking-[-0.03em] transition-colors duration-300 group-hover:text-white">{child.name}</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-muted transition-colors duration-300 group-hover:text-white/65">
                     Planned, designed and delivered as part of a connected {service.title.toLowerCase()} programme.
                   </p>
-                </article>
+                  <span className="mt-6 inline-flex text-sm text-brand transition-transform duration-300 group-hover:translate-x-1">Explore →</span>
+                </Link>
               </Reveal>
             ))}
           </div>

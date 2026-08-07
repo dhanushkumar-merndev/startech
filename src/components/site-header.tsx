@@ -128,15 +128,18 @@ export function SiteHeader() {
     }
   }, [open]);
 
-  // Lock the page behind the drawer while it is open.
+  // Lock the page behind either navigation overlay. The mega-menu is fixed to
+  // the header, so without this the Lenis page layer could still scroll under
+  // it while a visitor is choosing a service.
   useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
-    setSmoothScrollLocked(open);
+    const locked = open || mega;
+    document.body.style.overflow = locked ? "hidden" : "";
+    setSmoothScrollLocked(locked);
     return () => {
       document.body.style.overflow = "";
       setSmoothScrollLocked(false);
     };
-  }, [open]);
+  }, [open, mega]);
 
   return (
     <header
@@ -153,10 +156,10 @@ export function SiteHeader() {
             : "border-b border-transparent bg-transparent"
         }`}
       >
-        {/* Reading progress, pinned to the bottom edge of the bar. */}
+        {/* Reading progress, pinned to the top edge of the bar. */}
         <div
           aria-hidden
-          className="hdr-progress absolute inset-x-0 bottom-0 h-[2px] origin-left scale-x-0 bg-brand"
+          className="hdr-progress absolute inset-x-0 top-0 h-[2px] origin-left scale-x-0 bg-brand"
         />
 
         <div

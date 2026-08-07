@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { MOTION_OK, gsap, useGSAP } from "@/lib/gsap";
-import { services } from "@/lib/site";
+import { getSubServiceSlug, services } from "@/lib/site";
 import { ServiceThumb } from "./service-thumb";
 
 type ServicesMenuProps = {
@@ -27,12 +27,6 @@ export function ServicesMenu({ open, onClose }: ServicesMenuProps) {
     0,
   );
   const active = services[activeIndex];
-
-  // Offset the artwork per practice. Stepping by 3 through 8 constructions
-  // gives every practice a different starting point, so no two categories
-  // show the same sequence of tiles, while positions within one category stay
-  // distinct from each other.
-  const artOffset = activeIndex * 3;
 
   // Panel open/close. Built once, played and reversed — rebuilding it per
   // toggle would let a killed tween's leftover inline styles become the next
@@ -195,7 +189,7 @@ export function ServicesMenu({ open, onClose }: ServicesMenuProps) {
                   {active.children.map((child, i) => (
                     <li key={child.name} className="sm-card">
                       <Link
-                        href={`/services/${active.id}`}
+                        href={`/services/${active.id}/${getSubServiceSlug(child.name)}`}
                         onClick={onClose}
                         className="group/card block"
                       >

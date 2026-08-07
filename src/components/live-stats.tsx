@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 
+const SHOWCASE_MOTION_QUERY = "(prefers-reduced-motion: no-preference) and (min-width: 768px)";
+const canAnimateShowcase = () => window.matchMedia(SHOWCASE_MOTION_QUERY).matches;
+
 type LiveCounterProps = {
   initial: number;
   variance?: number;
@@ -34,6 +37,11 @@ export function LiveCounter({
   useEffect(() => {
     if (!active) {
       const frame = requestAnimationFrame(() => setVal(startAtZero ? 0 : initial));
+      return () => cancelAnimationFrame(frame);
+    }
+
+    if (!canAnimateShowcase()) {
+      const frame = requestAnimationFrame(() => setVal(initial));
       return () => cancelAnimationFrame(frame);
     }
 
@@ -98,11 +106,13 @@ export function TypewriterText({ phrases, className = "" }: TypewriterProps) {
 
   // Blink cursor
   useEffect(() => {
+    if (!canAnimateShowcase()) return;
     const cursorTimer = setInterval(() => setBlink((v) => !v), 500);
     return () => clearInterval(cursorTimer);
   }, []);
 
   useEffect(() => {
+    if (!canAnimateShowcase()) return;
     if (phrases.length === 0) return;
 
     if (subIndex === phrases[index].length + 1 && !reverse) {
@@ -127,8 +137,11 @@ export function TypewriterText({ phrases, className = "" }: TypewriterProps) {
 
   return (
     <span className={className}>
-      {phrases[index].substring(0, subIndex)}
-      <span className={`ml-0.5 inline-block font-bold text-brand ${blink ? "opacity-100" : "opacity-0"}`}>|</span>
+      <span className="sm:hidden">{phrases[0]}</span>
+      <span className="hidden sm:inline">
+        {phrases[index].substring(0, subIndex)}
+        <span className={`ml-0.5 inline-block font-bold text-brand ${blink ? "opacity-100" : "opacity-0"}`}>|</span>
+      </span>
     </span>
   );
 }
@@ -152,6 +165,7 @@ export function LiveGraph({
   const [heights, setHeights] = useState<number[]>(baseHeights);
 
   useEffect(() => {
+    if (!canAnimateShowcase()) return;
     const timer = setInterval(() => {
       setHeights(
         baseHeights.map((h) => {

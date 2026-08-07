@@ -151,6 +151,21 @@ export function getService(id: string) {
   return services.find((service) => service.id === id);
 }
 
+/** URL-safe, stable IDs for individual service capabilities. */
+export function getSubServiceSlug(name: string) {
+  return name
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+export function getSubService(serviceId: string, subServiceSlug: string) {
+  const service = getService(serviceId);
+  const child = service?.children.find((item) => getSubServiceSlug(item.name) === subServiceSlug);
+  return service && child ? { service, child } : undefined;
+}
+
 export type CaseStudy = {
   slug: string;
   client: string;

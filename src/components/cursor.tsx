@@ -25,6 +25,7 @@ export function Cursor() {
     const ringEl = ring.current;
     const heroOutlineEl = heroOutline.current;
     if (!arrowEl || !ringEl || !heroOutlineEl) return;
+    const heroBusinessWhite = document.querySelector<HTMLElement>(".hero-business-white");
 
     const mm = gsap.matchMedia();
 
@@ -37,10 +38,10 @@ export function Cursor() {
 
       const arrowX = gsap.quickTo(arrowEl, "x", { duration: 0.12, ease: "power3" });
       const arrowY = gsap.quickTo(arrowEl, "y", { duration: 0.12, ease: "power3" });
-      const heroRingX = gsap.quickTo(ringEl, "x", { duration: 0.14, ease: "power3.out" });
-      const heroRingY = gsap.quickTo(ringEl, "y", { duration: 0.14, ease: "power3.out" });
-      const heroOutlineX = gsap.quickTo(heroOutlineEl, "x", { duration: 0.14, ease: "power3.out" });
-      const heroOutlineY = gsap.quickTo(heroOutlineEl, "y", { duration: 0.14, ease: "power3.out" });
+      const heroRingX = gsap.quickTo(ringEl, "x", { duration: 0.36, ease: "power2.out" });
+      const heroRingY = gsap.quickTo(ringEl, "y", { duration: 0.36, ease: "power2.out" });
+      const heroOutlineX = gsap.quickTo(heroOutlineEl, "x", { duration: 0.36, ease: "power2.out" });
+      const heroOutlineY = gsap.quickTo(heroOutlineEl, "y", { duration: 0.36, ease: "power2.out" });
       // CSS zoom scales fixed-position cursor elements, while pointer client
       // coordinates remain in the unscaled viewport. Keep their coordinate
       // systems in sync on the 125% desktop presentation.
@@ -54,6 +55,18 @@ export function Cursor() {
       let ringHidden = false;
       let arrowHidden = false;
       let heroActive = false;
+      const updateBusinessMask = (clientX: number, clientY: number) => {
+        if (!heroBusinessWhite) return;
+        const bounds = heroBusinessWhite.getBoundingClientRect();
+        heroBusinessWhite.style.setProperty("--hero-mask-x", `${clientX - bounds.left}px`);
+        heroBusinessWhite.style.setProperty("--hero-mask-y", `${clientY - bounds.top}px`);
+      };
+      const showBusinessMask = () => {
+        if (heroBusinessWhite) gsap.set(heroBusinessWhite, { autoAlpha: 1 });
+      };
+      const hideBusinessMask = () => {
+        if (heroBusinessWhite) gsap.set(heroBusinessWhite, { autoAlpha: 0 });
+      };
       const setHeroCirclePosition = (x: number, y: number) => {
         gsap.set([ringEl, heroOutlineEl], { x, y });
       };
@@ -79,8 +92,10 @@ export function Cursor() {
           { autoAlpha: 0, scale: 0.94 },
           { autoAlpha: 1, scale: 1, duration: 0.12, ease: "power3.out", overwrite: "auto" },
         );
-      const hideHeroOutline = () =>
-        gsap.to(heroOutlineEl, { autoAlpha: 0, scale: 0.94, duration: 0.12, ease: "power3.out", overwrite: "auto" });
+      const hideHeroOutline = () => {
+        hideBusinessMask();
+        return gsap.to(heroOutlineEl, { autoAlpha: 0, scale: 0.94, duration: 0.12, ease: "power3.out", overwrite: "auto" });
+      };
       const showRing = () => {
         ringHidden = false;
         gsap.fromTo(
@@ -101,8 +116,14 @@ export function Cursor() {
         const y = e.clientY / pageZoom;
         arrowX(x);
         arrowY(y);
-        if (heroActive) moveHeroCircle(x, y);
-        else gsap.set(ringEl, { x, y });
+        if (heroActive) {
+          moveHeroCircle(x, y);
+          updateBusinessMask(e.clientX, e.clientY);
+        }
+        else {
+          heroRingX(x);
+          heroRingY(y);
+        }
         if (!shown) {
           shown = true;
           if (!arrowHidden) gsap.to(arrowEl, { autoAlpha: 1, duration: 0.3 });
@@ -164,8 +185,10 @@ export function Cursor() {
           heroActive = true;
           ringHidden = false;
           setHeroCirclePosition(e.clientX / pageZoom, e.clientY / pageZoom);
+          updateBusinessMask(e.clientX, e.clientY);
           hideArrow();
           showHeroOutline();
+          showBusinessMask();
           setState({
             width: 124,
             height: 124,
