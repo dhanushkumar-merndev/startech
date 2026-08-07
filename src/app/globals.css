@@ -1,26 +1,370 @@
 @import "tailwindcss";
+@import "lenis/dist/lenis.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ------------------------------------------------------------------
+   Star Tech India — design tokens
+   The palette is deliberately austere: paper white, ink black, one red.
+   Red marks action and emphasis only; it is never decoration.
+------------------------------------------------------------------- */
+
+@theme {
+  --color-paper: #ffffff;
+  --color-bone: #f6f5f3;
+  --color-line: #e7e5e0;
+
+  --color-ink: #0a0a0a;
+  --color-ink-2: #131316;
+  --color-ink-3: #1c1c20;
+  --color-line-dark: #2b2b30;
+
+  --color-muted: #6a6a70;
+  --color-muted-dark: #98989f;
+
+  --color-brand: #e10600;
+  --color-brand-hot: #ff3b2f;
+
+  --font-display: var(--font-star-display), "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-star-body), "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* ---------------------------------- base --------------------------------- */
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Give wide desktop screens the same more-present 125% viewing scale
+     without changing the tablet or mobile responsive layouts. */
+  @media (min-width: 1280px) {
+    html {
+      zoom: 1.25;
+    }
+  }
+
+  body {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    letter-spacing: -0.011em;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background: var(--color-brand);
+    color: #fff;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: -0.035em;
+    line-height: 0.95;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* The custom cursor replaces the native one, but only on fine pointers. */
+  @media (pointer: fine) {
+    body[data-cursor="on"],
+    body[data-cursor="on"] * {
+      cursor: none;
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ------------------------------- components ------------------------------ */
+
+@layer components {
+  .shell {
+    width: 100%;
+    max-width: 1360px;
+    margin-inline: auto;
+    padding-inline: 20px;
+  }
+
+  @media (min-width: 768px) {
+    .shell {
+      padding-inline: 40px;
+    }
+  }
+
+  /* Fluid display scale — the whole typographic system hangs off these. */
+  .d1 {
+    font-size: clamp(3.1rem, 10.5vw, 10.5rem);
+    line-height: 0.86;
+    letter-spacing: -0.045em;
+  }
+
+  .d2 {
+    font-size: clamp(2.4rem, 6.2vw, 5.6rem);
+    line-height: 0.92;
+    letter-spacing: -0.04em;
+  }
+
+  .d3 {
+    font-size: clamp(1.75rem, 3.4vw, 3rem);
+    line-height: 1;
+    letter-spacing: -0.035em;
+  }
+
+  .eyebrow {
+    font-family: var(--font-sans);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  /* --- buttons --- */
+  .btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    isolation: isolate;
+    overflow: hidden;
+    border-radius: 999px;
+    padding: 1.05rem 1.9rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    transition:
+      color 0.4s var(--ease-out-expo),
+      border-color 0.4s var(--ease-out-expo);
+  }
+
+  /* Fill wipes up from the bottom edge on hover. */
+  .btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    transform: translateY(101%);
+    transition: transform 0.55s var(--ease-out-expo);
+  }
+
+  .btn:hover::before,
+  .btn:focus-visible::before {
+    transform: translateY(0);
+  }
+
+  .btn-primary {
+    background: var(--color-ink);
+    color: #fff;
+  }
+
+  .btn-primary::before {
+    background: var(--color-brand);
+  }
+
+  .btn-red {
+    background: var(--color-brand);
+    color: #fff;
+  }
+
+  .btn-red::before {
+    background: var(--color-ink);
+  }
+
+  .btn-outline {
+    border: 1px solid var(--color-line);
+    color: var(--color-ink);
+  }
+
+  .btn-outline::before {
+    background: var(--color-ink);
+  }
+
+  .btn-outline:hover,
+  .btn-outline:focus-visible {
+    color: #fff;
+    border-color: var(--color-ink);
+  }
+
+  .btn-on-dark {
+    background: #fff;
+    color: var(--color-ink);
+  }
+
+  .btn-on-dark::before {
+    background: var(--color-brand);
+  }
+
+  .btn-on-dark:hover,
+  .btn-on-dark:focus-visible {
+    color: #fff;
+  }
+
+  /* --- link with a red rule that draws in on hover --- */
+  .ul-link {
+    position: relative;
+    display: inline-block;
+    padding-bottom: 2px;
+  }
+
+  .ul-link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 1px;
+    width: 100%;
+    background: var(--color-brand);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.45s var(--ease-out-expo);
+  }
+
+  .ul-link:hover::after,
+  .ul-link:focus-visible::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  /* --- surfaces --- */
+  .panel {
+    border: 1px solid var(--color-line);
+    border-radius: 22px;
+    background: var(--color-paper);
+  }
+
+  .panel-dark {
+    border: 1px solid var(--color-line-dark);
+    border-radius: 22px;
+    background: var(--color-ink-2);
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    padding: 0.4rem 0.85rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  /* A faint film of noise keeps the large flat fields from banding. */
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.3;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  }
+}
+
+/* -------------------------------- motion ---------------------------------
+   All timeline work is driven by GSAP (see src/lib/gsap.ts). What remains
+   here is only the *pre-hydration* resting state, so the server-rendered
+   HTML paints in the position GSAP is about to animate from. Without this
+   the browser would paint the finished layout and then visibly snap back
+   once GSAP took over.
+--------------------------------------------------------------------------- */
+
+/* Scroll-revealed blocks start invisible; GSAP fades and lifts them in. */
+.reveal {
+  opacity: 0;
+}
+
+/* Headings handed to SplitText are hidden until the split has been measured,
+   then GSAP makes them visible and animates the individual lines. They keep
+   their box, so nothing shifts when they appear. */
+.split-hold {
+  visibility: hidden;
+}
+
+/* These elements paint hidden before React hydrates, then their component
+   timelines reveal them together. This prevents a hard-refresh flash. */
+.site-header {
+  opacity: 0;
+  transform: translateY(-16px);
+}
+
+.hero-rule {
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.hero-lede,
+.hero-cta > * {
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+/* Structural mask for hand-written line reveals. The display scale runs a
+   line-height below 1, so the line box is shorter than the glyphs — the
+   padding/margin pair grows the clipping box past the ascenders and
+   descenders without moving anything in layout. */
+.line-mask {
+  display: block;
+  overflow: hidden;
+  padding-block: 0.16em;
+  margin-block: -0.16em;
+}
+
+.line-mask > span {
+  display: block;
+}
+
+/* SplitText's own masking wrapper needs the same breathing room. */
+.split-line-mask {
+  padding-block: 0.16em !important;
+  margin-block: -0.16em !important;
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+}
+
+/* Nothing above should be able to strand content off-screen when scripting
+   is unavailable. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  .site-header,
+  .hero-lede,
+  .hero-cta > * {
+    opacity: 1;
+    transform: none;
+  }
+
+  .hero-rule {
+    transform: scaleX(1);
+  }
 }
