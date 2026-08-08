@@ -23,7 +23,7 @@ export default function WorkPage() {
       <WorkGrid bare />
 
       <div className="border-y border-line">
-        <Marquee label="Partnering with category leaders across logistics, healthcare & finance" items={clients} duration={44} />
+        <Marquee label="Partnering with category leaders across logistics, healthcare & finance" items={clients} duration={44} logos />
       </div>
 
       <Cta />

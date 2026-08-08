@@ -17,14 +17,24 @@ export function PageHero({ eyebrow, title, lead, children }: PageHeroProps) {
 
   useGSAP(
     () => {
+      const scope = root.current;
+      if (!scope) return;
+
+      // The lead and the extra slot are both optional, so read them off the DOM
+      // rather than tweening a selector that may match nothing — GSAP warns on
+      // an empty target list.
+      const lead = scope.querySelector<HTMLElement>(".ph-lead");
+      const extra = scope.querySelector<HTMLElement>(".ph-extra");
+
       const mm = gsap.matchMedia();
       mm.add(MOTION_OK, () => {
-        gsap
+        const tl = gsap
           .timeline()
           .from(".ph-dot", { scale: 0, duration: 0.6, ease: "back.out(2)" })
-          .from(".ph-eyebrow", { y: 16, autoAlpha: 0, duration: 0.7 }, 0.05)
-          .from(".ph-lead", { y: 22, autoAlpha: 0, duration: 0.9 }, 0.45)
-          .from(".ph-extra", { y: 20, autoAlpha: 0, duration: 0.8 }, 0.6);
+          .from(".ph-eyebrow", { y: 16, autoAlpha: 0, duration: 0.7 }, 0.05);
+
+        if (lead) tl.from(lead, { y: 22, autoAlpha: 0, duration: 0.9 }, 0.45);
+        if (extra) tl.from(extra, { y: 20, autoAlpha: 0, duration: 0.8 }, 0.6);
       });
       return () => mm.revert();
     },

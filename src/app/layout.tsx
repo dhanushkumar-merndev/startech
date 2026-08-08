@@ -60,7 +60,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             unavailable nothing would ever reveal them, so hand the content
             straight back. */}
         <noscript>
-          <style>{`.reveal,.site-header,.hero-lede,.hero-cta>*{opacity:1!important;transform:none!important}.split-hold{visibility:visible!important}.hero-rule{transform:scaleX(1)!important}`}</style>
+          <style>{`.reveal,.site-header,.hero-cta>*{opacity:1!important;transform:none!important}.split-hold{visibility:visible!important}.hero-rule{transform:scaleX(1)!important}`}</style>
         </noscript>
 
         <Cursor />

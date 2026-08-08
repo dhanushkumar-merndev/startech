@@ -5,7 +5,7 @@ import { submitEnquiry } from "@/app/contact/actions";
 import { initialEnquiryState } from "@/lib/enquiry";
 import { services } from "@/lib/site";
 
-const budgets = ["Under ₹10L", "₹10L – ₹30L", "₹30L – ₹75L", "₹75L+", "Not sure yet"];
+const budgets = ["Under ₹25K", "₹25K – ₹50K", "₹50K – ₹1.5L", "₹1.5L+", "Not sure yet"];
 
 const field =
   "w-full border-0 border-b border-line bg-transparent px-0 py-3.5 text-[0.9375rem] outline-none transition-colors duration-300 placeholder:text-muted/60 focus:border-brand";

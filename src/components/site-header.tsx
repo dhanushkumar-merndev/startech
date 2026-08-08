@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { HiBars3, HiXMark } from "react-icons/hi2";
 import { MOTION_OK, MOTION_REDUCED, ScrollTrigger, gsap, useGSAP } from "@/lib/gsap";
 import { setSmoothScrollLocked } from "./scroll-manager";
 import { nav, site } from "@/lib/site";
@@ -108,7 +109,7 @@ export function SiteHeader() {
         drawerTl.current = null;
       };
     },
-    { scope: root },
+    { scope: drawer },
   );
 
   // Drive that timeline from the open state. Pointer events are toggled here
@@ -142,6 +143,7 @@ export function SiteHeader() {
   }, [open, mega]);
 
   return (
+    <>
     <header
       ref={root}
       className="site-header fixed inset-x-0 top-0 z-50"
@@ -181,8 +183,10 @@ export function SiteHeader() {
             />
           </Link>
 
+          {/* The inline nav needs more room than a landscape tablet has, so it
+              only takes over at xl — everything below keeps the drawer. */}
           <nav
-            className="hidden items-center gap-8 lg:flex"
+            className="hidden items-center gap-8 xl:flex"
           >
             {nav.map((item) => {
               const active = pathname === item.href;
@@ -253,17 +257,21 @@ export function SiteHeader() {
             aria-expanded={open}
             aria-controls="mobile-nav"
             aria-label={open ? "Close menu" : "Open menu"}
-            className="relative z-10 flex size-11 items-center justify-center rounded-full border border-line lg:hidden"
+            className="relative z-10 flex size-11 items-center justify-center rounded-full border border-line text-ink transition-colors duration-300 hover:border-ink xl:hidden"
           >
-            <span className="relative block h-3 w-4">
-              <span
-                className={`absolute left-0 block h-px w-4 bg-ink transition-all duration-300 ${
-                  open ? "top-1.5 rotate-45" : "top-0"
+            {/* Both icons are mounted and cross-faded, so the swap cannot flash
+                an empty button while the drawer is mid-animation. */}
+            <span className="relative block size-5">
+              <HiBars3
+                aria-hidden
+                className={`absolute inset-0 size-5 transition-all duration-300 ${
+                  open ? "rotate-90 opacity-0" : "rotate-0 opacity-100"
                 }`}
               />
-              <span
-                className={`absolute left-0 block h-px w-4 bg-ink transition-all duration-300 ${
-                  open ? "top-1.5 -rotate-45" : "top-3"
+              <HiXMark
+                aria-hidden
+                className={`absolute inset-0 size-5 transition-all duration-300 ${
+                  open ? "rotate-0 opacity-100" : "-rotate-90 opacity-0"
                 }`}
               />
             </span>
@@ -272,13 +280,19 @@ export function SiteHeader() {
       </div>
 
       <ServicesMenu open={mega} onClose={() => setMega(false)} />
+    </header>
 
-      {/* Mobile drawer */}
+      {/* Mobile drawer — a sibling of the header, not a child of it.
+          The header carries a transform for its entrance, and a transformed
+          ancestor becomes the containing block for `position: fixed`
+          descendants: nested inside, this panel sized itself to the 76px
+          header box instead of the viewport and never showed its contents.
+          It sits just under the header's z-50 so the close button stays live. */}
       <div
         id="mobile-nav"
         ref={drawer}
         data-lenis-prevent
-        className="fixed inset-0 top-0 z-[-1] bg-paper lg:hidden"
+        className="fixed inset-0 z-40 bg-paper xl:hidden"
         style={{ clipPath: "inset(0 0 100% 0)", pointerEvents: "none" }}
       >
         <div className="shell flex h-full flex-col justify-between pb-10 pt-28">
@@ -307,6 +321,6 @@ export function SiteHeader() {
           </div>
         </div>
       </div>
-    </header>
+    </>
   );
 }

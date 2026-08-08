@@ -152,6 +152,8 @@ type LiveGraphProps = {
   heightClass?: string;
   barColor?: string;
   accentColor?: string;
+  /** Hook for the caller to animate individual columns. */
+  barClass?: string;
 };
 
 /** Live bar chart that continuously morphs column heights randomly. */
@@ -161,6 +163,7 @@ export function LiveGraph({
   heightClass = "h-20",
   barColor = "bg-ink/12",
   accentColor = "bg-brand",
+  barClass = "",
 }: LiveGraphProps) {
   const [heights, setHeights] = useState<number[]>(baseHeights);
 
@@ -183,7 +186,7 @@ export function LiveGraph({
       {heights.map((h, i) => (
         <span
           key={i}
-          className={`flex-1 rounded-t-sm transition-all duration-700 ease-out ${
+          className={`${barClass} flex-1 rounded-t-sm transition-[height] duration-700 ease-out ${
             i === accentIndex ? accentColor : barColor
           }`}
           style={{ height: `${h}%` }}

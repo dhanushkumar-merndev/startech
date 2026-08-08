@@ -7,7 +7,7 @@ import { SplitHeading } from "@/components/split-heading";
 import { services } from "@/lib/site";
 import { gsap, useGSAP } from "@/lib/gsap";
 
-/** Service index with separate cards that respond softly near their edges. */
+/** Service index whose cards deform under the pointer. */
 export function ServicesList() {
   return (
     <section id="services" className="shell scroll-mt-24 py-16 sm:py-24 md:py-36">
@@ -28,10 +28,12 @@ export function ServicesList() {
         </Reveal>
       </div>
 
+      {/* hover:z-10 — a card stretching past its grid cell must not slip
+          underneath the one that comes after it. */}
       <div className="mt-10 sm:mt-16 grid gap-4 sm:gap-6 md:grid-cols-2 xl:grid-cols-3">
         {services.map((service, index) => (
-          <Reveal key={service.id} delay={index * 65} className="w-full h-full min-w-0">
-            <RepelServiceCard service={service} />
+          <Reveal key={service.id} delay={index * 65} className="relative w-full h-full min-w-0 hover:z-10">
+            <SquishServiceCard service={service} />
           </Reveal>
         ))}
       </div>
@@ -41,125 +43,147 @@ export function ServicesList() {
 
 type Service = (typeof services)[number];
 
-/** Separate service cards with a small edge-based squish and repel response. */
-function RepelServiceCard({ service }: { service: Service }) {
+/** How far outside the card the pointer still bends it, in px. */
+const REACH = 150;
+/** Peak compression along the axis the pointer is pressing from. */
+const SQUASH = 0.21;
+/**
+ * How much of that compression comes back out on the other axis. Squashing
+ * one way and stretching the other is what makes a shape read as soft — a card
+ * that only ever gets smaller reads as scaled, not squeezed.
+ */
+const COUNTER_STRETCH = 0.55;
+/** Degrees of lean towards the pointer, on top of the tilt. */
+const SKEW = 3;
+/** Degrees of tilt towards the pointer. */
+const TILT = 13;
+
+const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
+
+/**
+ * A card that deforms under the pointer.
+ *
+ * The card is not pushed around as a rigid block. Its perspective origin
+ * tracks the pointer, so the corner you are nearest is the pivot the rest of
+ * the card bends away from — the deformation is strongest right under the
+ * cursor and blends out across the far edges. Squash rides on top of the tilt
+ * with an overshoot ease, which is what makes it read as soft rather than
+ * mechanical.
+ */
+function SquishServiceCard({ service }: { service: Service }) {
+  const stageRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLAnchorElement>(null);
 
   useGSAP(
     () => {
+      const stage = stageRef.current;
       const card = cardRef.current;
-      if (!card) return;
+      if (!stage || !card) return;
 
       const mm = gsap.matchMedia();
       mm.add("(pointer: fine) and (min-width: 640px) and (prefers-reduced-motion: no-preference)", () => {
-        const xTo = gsap.quickTo(card, "x", { duration: 0.28, ease: "power2.out" });
-        const yTo = gsap.quickTo(card, "y", { duration: 0.28, ease: "power2.out" });
-        const scaleXTo = gsap.quickTo(card, "scaleX", { duration: 0.24, ease: "power2.out" });
-        const scaleYTo = gsap.quickTo(card, "scaleY", { duration: 0.24, ease: "power2.out" });
+        // Short durations keep it responsive; the overshoot on the squash is
+        // what gives the card its give.
+        const tiltX = gsap.quickTo(card, "rotationX", { duration: 0.3, ease: "power3.out" });
+        const tiltY = gsap.quickTo(card, "rotationY", { duration: 0.3, ease: "power3.out" });
+        const squashX = gsap.quickTo(card, "scaleX", { duration: 0.55, ease: "back.out(3)" });
+        const squashY = gsap.quickTo(card, "scaleY", { duration: 0.55, ease: "back.out(3)" });
+        const leanTo = gsap.quickTo(card, "skewX", { duration: 0.5, ease: "back.out(2.6)" });
+        const pressTo = gsap.quickTo(card, "z", { duration: 0.32, ease: "power3.out" });
 
+        // The pivot the bend is measured from. GSAP never touches the stage's
+        // own transform, so writing this property directly cannot desync its
+        // transform cache.
+        const focus = { x: 50, y: 50 };
+        const applyFocus = () => {
+          stage.style.perspectiveOrigin = `${focus.x}% ${focus.y}%`;
+        };
+        const focusX = gsap.quickTo(focus, "x", { duration: 0.45, ease: "power3.out", onUpdate: applyFocus });
+        const focusY = gsap.quickTo(focus, "y", { duration: 0.45, ease: "power3.out" });
+
+        // Measured lazily and invalidated rather than re-read on scroll:
+        // measuring here on every scroll event forced a layout per card per
+        // frame, which is felt as stutter the whole way down the page.
         let bounds: DOMRect | null = null;
-
-        const updateBounds = () => {
-          if (card) {
-            bounds = card.getBoundingClientRect();
-          }
+        const invalidate = () => {
+          bounds = null;
         };
 
-        const reset = () => {
-          xTo(0);
-          yTo(0);
-          scaleXTo(1);
-          scaleYTo(1);
+        let resting = true;
+
+        const rest = () => {
+          if (resting) return;
+          resting = true;
+          tiltX(0);
+          tiltY(0);
+          squashX(1);
+          squashY(1);
+          leanTo(0);
+          pressTo(0);
+          focusX(50);
+          focusY(50);
         };
 
         const onPointerMove = (event: PointerEvent) => {
-          if (!bounds) {
-            bounds = card.getBoundingClientRect();
-          }
+          if (event.pointerType !== "mouse") return;
+          if (!bounds) bounds = card.getBoundingClientRect();
 
-          const inside =
-            event.clientX >= bounds.left &&
-            event.clientX <= bounds.right &&
-            event.clientY >= bounds.top &&
-            event.clientY <= bounds.bottom;
+          const nearestX = clamp(event.clientX, bounds.left, bounds.right);
+          const nearestY = clamp(event.clientY, bounds.top, bounds.bottom);
+          const distance = Math.hypot(event.clientX - nearestX, event.clientY - nearestY);
 
-          let directionX = 0;
-          let directionY = 0;
-          let edgeDistance = 0;
-
-          if (inside) {
-            const fromCenter = Math.max(
-              Math.abs(event.clientX - (bounds.left + bounds.width / 2)) / (bounds.width / 2),
-              Math.abs(event.clientY - (bounds.top + bounds.height / 2)) / (bounds.height / 2),
-            );
-
-            // The central zone is calm.
-            if (fromCenter <= 0.05) {
-              reset();
-              return;
-            }
-
-            const edges = [
-              { edge: "left", value: event.clientX - bounds.left },
-              { edge: "right", value: bounds.right - event.clientX },
-              { edge: "top", value: event.clientY - bounds.top },
-              { edge: "bottom", value: bounds.bottom - event.clientY },
-            ] as const;
-            const closest = edges.reduce((near, edge) => (edge.value < near.value ? edge : near));
-            edgeDistance = closest.value;
-            directionX = closest.edge === "left" ? 1 : closest.edge === "right" ? -1 : 0;
-            directionY = closest.edge === "top" ? 1 : closest.edge === "bottom" ? -1 : 0;
-          } else {
-            const nearestX = Math.min(Math.max(event.clientX, bounds.left), bounds.right);
-            const nearestY = Math.min(Math.max(event.clientY, bounds.top), bounds.bottom);
-            const vectorX = nearestX - event.clientX;
-            const vectorY = nearestY - event.clientY;
-            edgeDistance = Math.hypot(vectorX, vectorY);
-            if (edgeDistance > 0) {
-              directionX = vectorX / edgeDistance;
-              directionY = vectorY / edgeDistance;
-            }
-          }
-
-          const threshold = 160;
-          if (edgeDistance >= threshold) {
-            reset();
+          if (distance >= REACH) {
+            rest();
             return;
           }
 
-          const strength = (1 - edgeDistance / threshold) ** 1.15;
-          const movement = 14 * strength;
-          xTo(directionX * movement);
-          yTo(directionY * movement);
-          scaleXTo(1 - (Math.abs(directionX) > Math.abs(directionY) ? 0.08 : -0.025) * strength);
-          scaleYTo(1 - (Math.abs(directionY) > Math.abs(directionX) ? 0.08 : -0.025) * strength);
-        };
+          resting = false;
 
-        const onPointerEnter = () => {
-          updateBounds();
+          // Anchor the bend where the pointer is closest to the card.
+          focusX(((nearestX - bounds.left) / bounds.width) * 100);
+          focusY(((nearestY - bounds.top) / bounds.height) * 100);
+
+          // Full strength while the pointer is over the card, tapering to
+          // nothing at the edge of its reach.
+          const strength = (1 - distance / REACH) ** 1.15;
+          const offsetX = clamp((event.clientX - (bounds.left + bounds.width / 2)) / (bounds.width / 2), -1, 1);
+          const offsetY = clamp((event.clientY - (bounds.top + bounds.height / 2)) / (bounds.height / 2), -1, 1);
+
+          // Squash along the axis the pointer is pressing from and let the
+          // other axis swell to take up the difference, the way a soft body
+          // conserves its volume.
+          const pressX = Math.abs(offsetX) * strength;
+          const pressY = Math.abs(offsetY) * strength;
+
+          tiltY(offsetX * TILT * strength);
+          tiltX(-offsetY * TILT * strength);
+          squashX(1 - pressX * SQUASH + pressY * SQUASH * COUNTER_STRETCH);
+          squashY(1 - pressY * SQUASH + pressX * SQUASH * COUNTER_STRETCH);
+          leanTo(offsetX * SKEW * strength);
+          pressTo(-30 * Math.max(pressX, pressY));
         };
 
         window.addEventListener("pointermove", onPointerMove, { passive: true });
-        window.addEventListener("pointerleave", reset);
-        window.addEventListener("scroll", updateBounds, { passive: true });
-        window.addEventListener("resize", updateBounds, { passive: true });
-        card.addEventListener("pointerenter", onPointerEnter, { passive: true });
+        window.addEventListener("pointerleave", rest);
+        window.addEventListener("scroll", invalidate, { passive: true });
+        window.addEventListener("resize", invalidate, { passive: true });
 
         return () => {
           window.removeEventListener("pointermove", onPointerMove);
-          window.removeEventListener("pointerleave", reset);
-          window.removeEventListener("scroll", updateBounds);
-          window.removeEventListener("resize", updateBounds);
-          card.removeEventListener("pointerenter", onPointerEnter);
+          window.removeEventListener("pointerleave", rest);
+          window.removeEventListener("scroll", invalidate);
+          window.removeEventListener("resize", invalidate);
+          stage.style.perspectiveOrigin = "";
         };
       });
 
       return () => mm.revert();
     },
-    { scope: cardRef },
+    { scope: stageRef },
   );
 
   return (
+    <div ref={stageRef} className="h-full [perspective:1100px]">
     <Link
       ref={cardRef}
       href={`/services/${service.id}`}
@@ -183,6 +207,7 @@ function RepelServiceCard({ service }: { service: Service }) {
         ))}
       </ul>
     </Link>
+    </div>
   );
 }
 

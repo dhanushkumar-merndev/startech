@@ -94,16 +94,19 @@ export function SiteFooter() {
           </div>
         </div>
 
-        {/* Oversized wordmark bleeding off the bottom edge. */}
+        {/* Oversized wordmark bleeding off the bottom edge. It is sized purely
+            in vw so it scales down with the viewport rather than being cut off
+            at its ends on a phone; the cap stops it growing without limit on a
+            very wide screen. */}
         <div className="mt-20 flex justify-center select-none" aria-hidden>
-          <div className="font-display text-center text-[clamp(4.5rem,13vw,11rem)] leading-[0.78] font-semibold tracking-[-0.055em] whitespace-nowrap text-white/[0.07]">
+          <div className="font-display text-center text-[min(10.5vw,11rem)] leading-[0.78] font-semibold tracking-[-0.055em] whitespace-nowrap text-white/[0.07]">
             STAR TECH INDIA
           </div>
         </div>
 
-        <div className="flex flex-col gap-4 border-t border-line-dark py-7 text-xs text-muted-dark sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 py-7 text-xs text-muted-dark sm:flex-row sm:items-center sm:justify-between">
           <p>
-            © {new Date().getFullYear()} {site.name} Pvt. Ltd. CIN U72900TN2014PTC000000.
+            © {new Date().getFullYear()} {site.name} Pvt. Ltd.
           </p>
           <div className="flex gap-6">
             <Link href="/privacy" className="ul-link">
@@ -112,7 +115,6 @@ export function SiteFooter() {
             <Link href="/terms" className="ul-link">
               Terms
             </Link>
-            <span>Made in Chennai</span>
           </div>
         </div>
       </div>

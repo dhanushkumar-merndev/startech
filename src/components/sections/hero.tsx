@@ -26,32 +26,36 @@ export function Hero() {
         line.parentElement?.classList.add("split-line-mask");
       });
 
+      // Resolve the targets once, here: GSAP warns on an empty target list, and
+      // the split can hand back no lines if it runs before the heading has a
+      // layout box.
+      const cta = Array.from(scope.querySelectorAll<HTMLElement>(".hero-cta > *"));
+
       const mm = gsap.matchMedia();
 
       mm.add(MOTION_REDUCED, () => {
         gsap.set(heading, { visibility: "visible" });
-        gsap.set([".hero-lede", ".hero-cta > *"], { autoAlpha: 1, y: 0 });
+        if (cta.length) gsap.set(cta, { autoAlpha: 1, y: 0 });
       });
 
       mm.add(MOTION_OK, () => {
         gsap.set(heading, { visibility: "visible" });
 
         // One timeline for the whole entrance so the pieces stay in step.
-        gsap
-          .timeline({ defaults: { ease: EASE } })
-          .from(split.lines, { yPercent: 115, duration: 1.25, stagger: 0.09 })
-          .fromTo(
-            ".hero-lede",
-            { y: 24, autoAlpha: 0 },
-            { y: 0, autoAlpha: 1, duration: 0.9 },
-            0.5,
-          )
-          .fromTo(
-            ".hero-cta > *",
+        const tl = gsap.timeline({ defaults: { ease: EASE } });
+
+        if (split.lines.length) {
+          tl.from(split.lines, { yPercent: 115, duration: 1.25, stagger: 0.09 });
+        }
+
+        if (cta.length) {
+          tl.fromTo(
+            cta,
             { y: 20, autoAlpha: 0 },
             { y: 0, autoAlpha: 1, duration: 0.8, stagger: 0.09 },
             0.6,
           );
+        }
       });
 
       return () => {
@@ -63,7 +67,7 @@ export function Hero() {
   );
 
   return (
-    <section ref={root} className="relative overflow-hidden pb-6 sm:pb-16 md:pb-24 pt-[110px] sm:pt-[150px] md:pt-[224px]">
+    <section ref={root} className="relative overflow-hidden pb-6 pt-32 sm:pb-16 sm:pt-[150px] md:pb-24 md:pt-[224px]">
       <div
         aria-hidden
         className="hero-pattern pointer-events-none absolute inset-0 opacity-90"
@@ -79,7 +83,7 @@ export function Hero() {
       <div className="shell relative">
         <div className="grid items-end gap-4 sm:gap-8 lg:grid-cols-12">
           <h1
-            className="hero-title split-hold d1 relative z-10 text-[clamp(2.2rem,7.5vw,6.5rem)] font-display font-medium lg:col-span-8"
+            className="hero-title split-hold d1 relative z-10 mb-8 text-[clamp(2.2rem,7.5vw,6.5rem)] font-display font-medium sm:mb-0 lg:col-span-8"
           >
             <span data-cursor="hero">
               software for your{" "}

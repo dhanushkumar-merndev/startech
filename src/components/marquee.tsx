@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useRef } from "react";
+import { ClientMark } from "@/components/client-mark";
 import { ScrollTrigger, gsap, useGSAP } from "@/lib/gsap";
 
 type MarqueeProps = {
@@ -9,6 +10,8 @@ type MarqueeProps = {
   /** Seconds for one full pass at rest. */
   duration?: number;
   invert?: boolean;
+  /** Pair each word with its client mark. Only meaningful for client lists. */
+  logos?: boolean;
 };
 
 /**
@@ -19,7 +22,7 @@ type MarqueeProps = {
  * the strip accelerates with the page and reverses when you scroll back up,
  * then eases home to its resting speed. Hovering brings it to a stop.
  */
-export function Marquee({ items, label, duration = 38, invert = false }: MarqueeProps) {
+export function Marquee({ items, label, duration = 38, invert = false, logos = false }: MarqueeProps) {
   const root = useRef<HTMLDivElement>(null);
   const track = useRef<HTMLDivElement>(null);
 
@@ -41,7 +44,13 @@ export function Marquee({ items, label, duration = 38, invert = false }: Marquee
 
         let direction = 1;
         let hovering = false;
+        let requested = 1;
         let settle: ReturnType<typeof setTimeout>;
+
+        const driveTo = (value: number, duration: number) => {
+          requested = value;
+          gsap.to(loop, { timeScale: value, duration, overwrite: true });
+        };
 
         const trigger = ScrollTrigger.create({
           onUpdate(self) {
@@ -53,30 +62,40 @@ export function Marquee({ items, label, duration = 38, invert = false }: Marquee
             direction = velocity > 0 ? 1 : -1;
             // Cap the boost so a flick of the wheel cannot send it flying.
             const boost = Math.min(Math.abs(velocity) / 500, 4);
+            const next = direction * (1 + boost);
 
-            gsap.to(loop, {
-              timeScale: direction * (1 + boost),
-              duration: 0.3,
-              overwrite: true,
-            });
+            // Lenis reports a fresh velocity every frame. Without this guard
+            // the strip allocated a new tween sixty times a second for the
+            // whole length of the page — the ramp is far too coarse to notice
+            // the difference, and the allocation is not free.
+            if (Math.abs(next - requested) > 0.06) driveTo(next, 0.3);
 
             clearTimeout(settle);
             settle = setTimeout(() => {
               if (hovering) return;
-              gsap.to(loop, { timeScale: direction, duration: 0.9, overwrite: true });
+              driveTo(direction, 0.9);
             }, 180);
           },
+        });
+
+        // Nothing to look at when the strip is off screen; a paused tween
+        // costs nothing per frame.
+        const visibility = ScrollTrigger.create({
+          trigger: rootEl,
+          start: "top bottom",
+          end: "bottom top",
+          onToggle: (self) => (self.isActive ? loop.resume() : loop.pause()),
         });
 
         const onEnter = () => {
           hovering = true;
           clearTimeout(settle);
-          gsap.to(loop, { timeScale: 0, duration: 0.5, overwrite: true });
+          driveTo(0, 0.5);
         };
 
         const onLeave = () => {
           hovering = false;
-          gsap.to(loop, { timeScale: direction, duration: 0.7, overwrite: true });
+          driveTo(direction, 0.7);
         };
 
         rootEl.addEventListener("pointerenter", onEnter);
@@ -85,6 +104,7 @@ export function Marquee({ items, label, duration = 38, invert = false }: Marquee
         return () => {
           clearTimeout(settle);
           trigger.kill();
+          visibility.kill();
           rootEl.removeEventListener("pointerenter", onEnter);
           rootEl.removeEventListener("pointerleave", onLeave);
         };
@@ -100,11 +120,25 @@ export function Marquee({ items, label, duration = 38, invert = false }: Marquee
       {items.map((item) => (
         <Fragment key={item}>
           <span
-            className={`px-4 sm:px-8 font-display text-[clamp(0.95rem,1.6vw,1.35rem)] font-medium tracking-[-0.02em] whitespace-nowrap ${
+            className={`marquee-item group flex shrink-0 items-center gap-2.5 px-4 sm:gap-3.5 sm:px-8 ${
               invert ? "text-white/55" : "text-ink/45"
             }`}
           >
-            {item}
+            {logos && (
+              <ClientMark
+                name={item}
+                className={`marquee-mark size-5 shrink-0 transition-[color,transform] duration-500 group-hover:scale-110 sm:size-6 ${
+                  invert ? "text-white/35 group-hover:text-brand-hot" : "text-ink/30 group-hover:text-brand"
+                }`}
+              />
+            )}
+            <span
+              className={`font-display text-[clamp(0.95rem,1.6vw,1.35rem)] font-medium tracking-[-0.02em] whitespace-nowrap transition-colors duration-500 ${
+                invert ? "group-hover:text-white" : "group-hover:text-ink"
+              }`}
+            >
+              {item}
+            </span>
           </span>
           <span aria-hidden className="text-brand">
             ✦

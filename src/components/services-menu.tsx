@@ -96,7 +96,7 @@ export function ServicesMenu({ open, onClose }: ServicesMenuProps) {
       inert={!open ? true : undefined}
       aria-hidden={!open}
       data-lenis-prevent
-      className="invisible absolute inset-x-0 top-full hidden opacity-0 lg:block"
+      className="invisible absolute inset-x-0 top-full hidden opacity-0 xl:block"
       style={{ pointerEvents: open ? "auto" : "none" }}
     >
       <div className="shell pb-6 pt-3">
@@ -127,14 +127,6 @@ export function ServicesMenu({ open, onClose }: ServicesMenuProps) {
                           }`}
                         >
                           {service.title}
-                        </span>
-
-                        <span
-                          className={`grid h-5 min-w-[26px] place-items-center rounded-full px-1.5 text-[0.6875rem] font-medium transition-colors duration-300 ${
-                            isActive ? "bg-brand text-white" : "bg-line text-muted"
-                          }`}
-                        >
-                          {service.children.length}
                         </span>
 
                         <svg
