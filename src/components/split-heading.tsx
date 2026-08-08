@@ -18,6 +18,8 @@ type SplitHeadingProps = {
   /** "load" fires immediately; "scroll" waits until the heading is in view. */
   trigger?: "load" | "scroll";
   delay?: number;
+  /** Opt in to the cursor's circular colour-inversion reveal. */
+  cursorReveal?: boolean;
 };
 
 /**
@@ -34,8 +36,10 @@ export function SplitHeading({
   as: Tag = "h2",
   trigger = "scroll",
   delay = 0,
+  cursorReveal = false,
 }: SplitHeadingProps) {
   const ref = useRef<HTMLElement>(null);
+  const content = useRef<HTMLSpanElement>(null);
   const fontsReady = useFontsReady();
 
   useGSAP(
@@ -43,7 +47,10 @@ export function SplitHeading({
       const el = ref.current;
       if (!el || !fontsReady) return;
 
-      const split = SplitText.create(el, {
+      // With cursorReveal the heading also holds the reveal overlay, so the
+      // split has to be scoped to the text span or SplitText would consume the
+      // overlay into the line wrappers too.
+      const split = SplitText.create(content.current ?? el, {
         type: "lines",
         mask: "lines",
         linesClass: "split-line",
@@ -85,9 +92,27 @@ export function SplitHeading({
     { scope: ref, dependencies: [fontsReady, trigger, delay] },
   );
 
+  if (!cursorReveal) {
+    return (
+      <Tag ref={ref} className={`split-hold ${className}`}>
+        {children}
+      </Tag>
+    );
+  }
+
+  // Margins stay on the heading itself, so `inset-0` matches the text box
+  // exactly and the overlay lines up with the split copy underneath it.
   return (
-    <Tag ref={ref} className={`split-hold ${className}`}>
-      {children}
+    <Tag ref={ref} data-cursor="hero" className={`split-hold relative ${className}`}>
+      <span ref={content} className="block">
+        {children}
+      </span>
+      <span
+        aria-hidden
+        className="cursor-heading-mask pointer-events-none absolute inset-0 z-10 block text-brand opacity-0 [clip-path:circle(62px_at_var(--hero-mask-x,50%)_var(--hero-mask-y,50%))]"
+      >
+        {children}
+      </span>
     </Tag>
   );
 }

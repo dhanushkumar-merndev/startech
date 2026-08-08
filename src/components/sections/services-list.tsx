@@ -16,7 +16,7 @@ export function ServicesList() {
           <Reveal>
             <span className="eyebrow text-brand">What we do</span>
           </Reveal>
-          <SplitHeading className="d2 mt-4 sm:mt-5 font-display">
+          <SplitHeading cursorReveal className="d2 mt-4 sm:mt-5 font-display">
             Everything your business needs to grow online.
           </SplitHeading>
         </div>
