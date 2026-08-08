@@ -13,9 +13,10 @@ export function Hero() {
     () => {
       const scope = root.current;
       const heading = scope?.querySelector<HTMLElement>(".hero-title");
-      if (!scope || !heading || !fontsReady) return;
+      const headingSource = heading?.querySelector<HTMLElement>(".hero-title-source");
+      if (!scope || !heading || !headingSource || !fontsReady) return;
 
-      const split = SplitText.create(heading, {
+      const split = SplitText.create(headingSource, {
         type: "lines",
         mask: "lines",
         linesClass: "split-line",
@@ -25,6 +26,22 @@ export function Hero() {
       heading.querySelectorAll(".split-line").forEach((line) => {
         line.parentElement?.classList.add("split-line-mask");
       });
+
+      // The reveal copy is cloned from the split source rather than written
+      // out a second time in markup. SplitText rebuilds the source into
+      // per-line mask boxes, so a hand-written duplicate is laying out plain
+      // inline text against a very different structure — the two stacks drift
+      // apart and the circle shows letters that do not sit on the ones
+      // underneath. Cloning makes them identical by construction; the colours
+      // are inverted in CSS rather than in the markup.
+      const revealCopy = heading.querySelector<HTMLElement>(".hero-heading-mask");
+      let revealLines: HTMLElement[] = [];
+      if (revealCopy) {
+        const clone = headingSource.cloneNode(true) as HTMLElement;
+        clone.classList.remove("hero-title-source");
+        revealCopy.replaceChildren(clone);
+        revealLines = Array.from(revealCopy.querySelectorAll<HTMLElement>(".split-line"));
+      }
 
       // Resolve the targets once, here: GSAP warns on an empty target list, and
       // the split can hand back no lines if it runs before the heading has a
@@ -47,6 +64,9 @@ export function Hero() {
         if (split.lines.length) {
           tl.from(split.lines, { yPercent: 115, duration: 1.25, stagger: 0.09 });
         }
+        if (revealLines.length) {
+          tl.from(revealLines, { yPercent: 115, duration: 1.25, stagger: 0.09 }, 0);
+        }
 
         if (cta.length) {
           tl.fromTo(
@@ -60,6 +80,9 @@ export function Hero() {
 
       return () => {
         mm.revert();
+        // Drop the clone before reverting, or the split's teardown would be
+        // measuring against a copy of its own output.
+        revealCopy?.replaceChildren();
         split.revert();
       };
     },
@@ -83,16 +106,21 @@ export function Hero() {
       <div className="shell relative">
         <div className="grid items-end gap-4 sm:gap-8 lg:grid-cols-12">
           <h1
+            data-cursor="hero"
             className="hero-title split-hold d1 relative z-10 mb-8 text-[clamp(2.2rem,7.5vw,6.5rem)] font-display font-medium sm:mb-0 lg:col-span-8"
           >
-            <span data-cursor="hero">
+            <span className="hero-title-source">
               software for your{" "}
-              <span className="hero-business relative inline-block text-brand">
-                business
-                <span aria-hidden className="hero-business-white pointer-events-none absolute inset-0 text-white opacity-0 [clip-path:circle(62px_at_var(--hero-mask-x,50%)_var(--hero-mask-y,50%))]">
-                  business
-                </span>
-              </span>
+              <span className="hero-business inline-block text-brand">business</span>
+            </span>
+            {/* Filled in from a clone of the split source once GSAP runs; the
+                markup here is only what stands in before hydration. */}
+            <span
+              aria-hidden
+              className="cursor-heading-mask hero-heading-mask pointer-events-none absolute inset-0 z-10 block text-brand opacity-0 [clip-path:circle(62px_at_var(--hero-mask-x,50%)_var(--hero-mask-y,50%))]"
+            >
+              software for your{" "}
+              <span className="inline-block text-ink">business</span>
             </span>
           </h1>
 

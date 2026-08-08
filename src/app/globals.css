@@ -358,6 +358,14 @@
   transform: translateY(24px);
 }
 
+/* The hero's reveal copy is a clone of the split heading, so it arrives
+   carrying the source's own colours. Inverting them here keeps the clone
+   byte-identical to what it is covering — the one thing that guarantees the
+   letters inside the cursor's circle sit exactly on the letters beneath. */
+.hero-heading-mask .hero-business {
+  color: var(--color-ink);
+}
+
 /* Structural mask for hand-written line reveals. The display scale runs a
    line-height below 1, so the line box is shorter than the glyphs — the
    padding/margin pair grows the clipping box past the ascenders and

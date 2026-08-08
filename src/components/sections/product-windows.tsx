@@ -54,6 +54,23 @@ const nodes = [
  * Two intentionally different product canvases. They follow the hero preview
  * with richer examples of the CRM and automation work the studio ships.
  */
+function ProductHeading({ children }: { children: string }) {
+  return (
+    <h2
+      data-cursor="hero"
+      className="relative mt-3 sm:mt-4 font-display text-[clamp(2.1rem,4.5vw,4.8rem)] leading-[0.92] tracking-[-0.055em]"
+    >
+      <span className="block">{children}</span>
+      <span
+        aria-hidden
+        className="cursor-heading-mask pointer-events-none absolute inset-0 z-10 block text-brand opacity-0 [clip-path:circle(62px_at_var(--hero-mask-x,50%)_var(--hero-mask-y,50%))]"
+      >
+        {children}
+      </span>
+    </h2>
+  );
+}
+
 export function ProductWindows() {
   const root = useRef<HTMLElement>(null);
 
@@ -253,9 +270,7 @@ export function ProductWindows() {
       <article className="relative grid items-center gap-6 lg:gap-8 lg:grid-cols-12">
         <div className="lg:col-span-4">
           <span className="eyebrow text-brand">01 — lead command centre</span>
-          <h2 className="mt-3 sm:mt-4 font-display text-[clamp(2.1rem,4.5vw,4.8rem)] leading-[0.92] tracking-[-0.055em]">
-            Every opportunity, moving forward.
-          </h2>
+          <ProductHeading>Every opportunity, moving forward.</ProductHeading>
           <p className="mt-4 sm:mt-6 max-w-sm text-[0.875rem] sm:text-[0.95rem] leading-relaxed text-muted">
             A sales workspace that turns incoming enquiries into focused next actions for your
             team—without spreadsheets or chasing updates.
@@ -370,9 +385,7 @@ export function ProductWindows() {
       <article className="relative grid items-center gap-6 lg:gap-8 lg:grid-cols-12">
         <div className="order-1 lg:order-2 lg:col-span-4">
           <span className="eyebrow text-brand">02 — automation studio</span>
-          <h2 className="mt-3 sm:mt-4 font-display text-[clamp(2.1rem,4.5vw,4.8rem)] leading-[0.92] tracking-[-0.055em]">
-            Build the work that runs itself.
-          </h2>
+          <ProductHeading>Build the work that runs itself.</ProductHeading>
           <p className="mt-4 sm:mt-6 max-w-sm text-[0.875rem] sm:text-[0.95rem] leading-relaxed text-muted">
             Connect the tools your business already uses, then make follow-ups, approvals and
             notifications happen at exactly the right moment.

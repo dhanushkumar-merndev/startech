@@ -89,19 +89,19 @@ export function SiteHeader() {
         .fromTo(
           panel,
           { clipPath: "inset(0 0 100% 0)" },
-          { clipPath: "inset(0 0 0% 0)", duration: 0.7, ease: "power4.inOut" },
+          { clipPath: "inset(0 0 0% 0)", duration: 0.45, ease: "power4.inOut" },
         )
         .fromTo(
           ".drawer-item",
-          { y: 26, autoAlpha: 0 },
-          { y: 0, autoAlpha: 1, duration: 0.55, stagger: 0.06, ease: "power3.out" },
-          0.24,
+          { y: 22, autoAlpha: 0 },
+          { y: 0, autoAlpha: 1, duration: 0.38, stagger: 0.045, ease: "power3.out" },
+          0.14,
         )
         .fromTo(
           ".drawer-foot",
-          { y: 20, autoAlpha: 0 },
-          { y: 0, autoAlpha: 1, duration: 0.5 },
-          0.42,
+          { y: 18, autoAlpha: 0 },
+          { y: 0, autoAlpha: 1, duration: 0.34 },
+          0.26,
         );
 
       return () => {
@@ -122,10 +122,13 @@ export function SiteHeader() {
 
     if (open) {
       panel.style.pointerEvents = "auto";
-      tl.play();
+      tl.timeScale(1).play();
     } else {
       panel.style.pointerEvents = "none";
-      tl.reverse();
+      // Closing should get out of the way rather than replay the entrance
+      // backwards at the same pace — most closes happen because a link was
+      // tapped, and the next page is already loading behind the panel.
+      tl.timeScale(2.4).reverse();
     }
   }, [open]);
 
@@ -251,13 +254,25 @@ export function SiteHeader() {
             </Link>
           </nav>
 
+          {/* Toggled on pointerdown, not click. A press that lands while the
+              page is still gliding gets spent cancelling that momentum, and
+              no click is ever dispatched — which is why the button felt dead
+              until scrolling had fully settled. pointerdown always arrives.
+              Keyboard activation still comes through click, where `detail` is
+              0 because no pointer press preceded it. */}
           <button
             type="button"
-            onClick={() => setOpen((v) => !v)}
+            onPointerDown={(event) => {
+              if (event.button !== 0) return;
+              setOpen((v) => !v);
+            }}
+            onClick={(event) => {
+              if (event.detail === 0) setOpen((v) => !v);
+            }}
             aria-expanded={open}
             aria-controls="mobile-nav"
             aria-label={open ? "Close menu" : "Open menu"}
-            className="relative z-10 flex size-11 items-center justify-center rounded-full border border-line text-ink transition-colors duration-300 hover:border-ink xl:hidden"
+            className="relative z-10 flex size-11 touch-manipulation items-center justify-center rounded-full border border-line text-ink transition-colors duration-300 hover:border-ink xl:hidden"
           >
             {/* Both icons are mounted and cross-faded, so the swap cannot flash
                 an empty button while the drawer is mid-animation. */}
