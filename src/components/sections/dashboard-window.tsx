@@ -551,7 +551,7 @@ export function DashboardWindow() {
               <span className="size-2 rounded-full bg-ink/15" />
             </div>
             <span className="rounded-full border border-line bg-paper px-3 py-1 font-mono text-[0.625rem] text-muted">
-              startech.in / workspace
+              startechindia.com / workspace
             </span>
             <span className="text-xs text-muted">Live overview</span>
           </div>

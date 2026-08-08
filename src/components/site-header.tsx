@@ -178,8 +178,8 @@ export function SiteHeader() {
               width={749}
               height={226}
               priority
-              sizes="(max-width: 767px) 132px, 160px"
-              className="h-auto w-[132px] sm:w-[150px] lg:w-[160px]"
+              sizes="(max-width: 767px) 162px, 172px"
+              className="h-auto w-[162px] lg:w-[172px]"
             />
           </Link>
 

@@ -2,13 +2,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { nav, services, site } from "@/lib/site";
 
-const social = [
-  { label: "LinkedIn", href: "https://www.linkedin.com" },
-  { label: "GitHub", href: "https://github.com" },
-  { label: "X", href: "https://x.com" },
-  { label: "Dribbble", href: "https://dribbble.com" },
-];
-
 export function SiteFooter() {
   return (
     <footer className="grain relative overflow-hidden bg-ink text-white">
@@ -68,22 +61,8 @@ export function SiteFooter() {
             </div>
 
             <div>
-              <h3 className="eyebrow text-muted-dark">Elsewhere</h3>
-              <ul className="mt-5 space-y-3">
-                {social.map((s) => (
-                  <li key={s.label}>
-                    <a
-                      href={s.href}
-                      target="_blank"
-                      rel="noreferrer noopener"
-                      className="ul-link text-sm text-white/85"
-                    >
-                      {s.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-              <address className="mt-8 not-italic text-sm leading-relaxed text-muted-dark">
+              <h3 className="eyebrow text-muted-dark">Studio</h3>
+              <address className="mt-5 not-italic text-sm leading-relaxed text-muted-dark">
                 {site.address.map((line) => (
                   <span key={line} className="block">
                     {line}
@@ -106,7 +85,7 @@ export function SiteFooter() {
 
         <div className="flex flex-col gap-4 py-7 text-xs text-muted-dark sm:flex-row sm:items-center sm:justify-between">
           <p>
-            © {new Date().getFullYear()} {site.name} Pvt. Ltd.
+            © {new Date().getFullYear()} {site.name}.
           </p>
           <div className="flex gap-6">
             <Link href="/privacy" className="ul-link">

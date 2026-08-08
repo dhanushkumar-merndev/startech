@@ -228,6 +228,9 @@
   }
 
   .btn-outline {
+    /* Solid rather than transparent: it sits on the patterned paper, and the
+       texture reading through the button muddied its edge. */
+    background: var(--color-paper);
     border: 1px solid var(--color-line);
     color: var(--color-ink);
   }

@@ -3,8 +3,15 @@ export const site = {
   short: "Star Tech",
   tagline: "Websites, CRM, mobile apps and business automation built for growing businesses.",
   email: "hello@startechindia.com",
-  phone: "+91 98400 00000",
-  address: ["Star Tech India Pvt. Ltd.", "Tidel Park, Taramani", "Chennai 600113, India"],
+  phone: "+91 97430 30555",
+  /** Same line in the digits-only form wa.me requires (country code, no +). */
+  whatsapp: "919743030555",
+  address: [
+    "No. 18, 1st Floor, 1st Main",
+    "BSK 1st Stage, Srinivasa Nagar",
+    "80 Feet Main Road",
+    "Bengaluru, Karnataka 560050",
+  ],
 } as const;
 
 export const nav = [

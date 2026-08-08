@@ -260,8 +260,7 @@ export function ProductWindows() {
             A sales workspace that turns incoming enquiries into focused next actions for your
             team—without spreadsheets or chasing updates.
           </p>
-          <div className="mt-5 sm:mt-7 flex items-center gap-3 text-sm font-medium">
-            <span className="grid size-8 place-items-center rounded-full bg-brand text-white">↗</span>
+          <div className="mt-5 sm:mt-7 text-sm font-medium">
             CRM & lead management
           </div>
         </div>

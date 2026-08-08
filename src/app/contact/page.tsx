@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { FaWhatsapp } from "react-icons/fa6";
 import { ContactForm } from "@/components/contact-form";
 import { PageHero } from "@/components/page-hero";
 import { Reveal } from "@/components/reveal";
@@ -60,6 +61,15 @@ export default function ContactPage() {
                     className="ul-link block font-display text-lg tracking-[-0.03em]"
                   >
                     {site.phone}
+                  </a>
+                  <a
+                    href={`https://wa.me/${site.whatsapp}`}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="ul-link inline-flex items-center gap-2 font-display text-lg tracking-[-0.03em]"
+                  >
+                    <FaWhatsapp aria-hidden className="size-[1.05em] text-brand" />
+                    WhatsApp us
                   </a>
                 </div>
 
