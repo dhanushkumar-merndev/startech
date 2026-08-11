@@ -73,6 +73,12 @@ export function SplitHeading({
 
       mm.add(MOTION_OK, () => {
         gsap.set(el, { visibility: "visible" });
+        // An empty line list means the split ran against nothing — GSAP would
+        // still attach the ScrollTrigger below, and a trigger with no element
+        // can never resolve an end. refresh() recurses into exactly those,
+        // which is what overflows the stack once a few have accumulated.
+        if (!split.lines.length) return;
+
         gsap.from(split.lines, {
           yPercent: 115,
           duration: 1.15,

@@ -1,11 +1,52 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import Lenis from "lenis";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 
 const LENIS_LOCK_EVENT = "startech:lenis-lock";
+
+/**
+ * Drops ScrollTriggers whose element has left the document.
+ *
+ * When a component's scope ref is detached, GSAP resolves its scoped selectors
+ * against a throwaway `<div>` (it warns "Invalid scope") and still builds the
+ * tween's ScrollTrigger — now pointing at an element no layout can measure, so
+ * its `end` never resolves. That matters because refresh() walks every
+ * registered trigger and recursively refreshes any with a falsy `end`
+ * (ScrollTrigger.js: `curTrigger.end || curTrigger.refresh(0, 1)`). Those
+ * nested calls mutate the same array the outer loop is indexing, which reads
+ * back `undefined` — the "Cannot read properties of undefined (reading 'end')"
+ * — and once enough of them pile up the recursion overflows the stack and
+ * takes the tab down with it.
+ *
+ * Sweeping them before each refresh keeps that array to triggers that can
+ * actually resolve.
+ */
+/** Layout timing on the client, without the server-render warning. */
+const useIsomorphicLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
+
+function killOrphanedTriggers() {
+  for (const trigger of ScrollTrigger.getAll()) {
+    const el = trigger.trigger ?? trigger.pin;
+    if (el instanceof Element && !el.isConnected) {
+      trigger.kill();
+      continue;
+    }
+    // A trigger driving an animation that has no targets left can never resolve
+    // an end either. Checked via the animation rather than a missing `trigger`
+    // element, so listener-style triggers created with only an onUpdate — the
+    // marquee's, for instance — are left alone.
+    // Timelines have no targets() and are skipped; only tweens are checked.
+    const animation = trigger.animation;
+    const targets =
+      animation && typeof (animation as gsap.core.Tween).targets === "function"
+        ? (animation as gsap.core.Tween).targets()
+        : null;
+    if (targets && !targets.length) trigger.kill();
+  }
+}
 
 /**
  * App Router keeps the layout mounted across navigations, so ScrollTrigger's
@@ -39,14 +80,29 @@ export function ScrollManager() {
     gsap.ticker.add(onTick);
     gsap.ticker.lagSmoothing(0);
     window.addEventListener(LENIS_LOCK_EVENT, onLockChange);
+    // Fires immediately before refresh() walks the trigger list, which is the
+    // only point that catches orphans created during the very same commit —
+    // a route-change sweep runs too early for those, since the incoming page's
+    // layout effects build their triggers afterwards.
+    ScrollTrigger.addEventListener("refreshInit", killOrphanedTriggers);
 
     return () => {
+      ScrollTrigger.removeEventListener("refreshInit", killOrphanedTriggers);
       window.removeEventListener(LENIS_LOCK_EVENT, onLockChange);
       gsap.ticker.remove(onTick);
       if (lenisRef.current === lenis) lenisRef.current = null;
       lenis.destroy();
     };
   }, []);
+
+  // Must be a layout effect, and must sit above <main> in the layout tree: the
+  // incoming page's useGSAP hooks are layout effects too, so they build their
+  // ScrollTriggers before any passive effect here could run. Creating a trigger
+  // walks the global list, so the sweep has to happen first or the new page
+  // still trips over the previous one's orphans on the way in.
+  useIsomorphicLayoutEffect(() => {
+    killOrphanedTriggers();
+  }, [pathname]);
 
   useEffect(() => {
     let painted = 0;
@@ -69,6 +125,7 @@ export function ScrollManager() {
       }
 
       painted = requestAnimationFrame(() => {
+        killOrphanedTriggers();
         // Measure before moving: the reveal triggers on the incoming page fix
         // their start positions during refresh, so jumping to an anchor first
         // would settle them against a layout that is about to change.

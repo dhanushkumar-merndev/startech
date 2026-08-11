@@ -27,6 +27,11 @@ export function Stats() {
       const mm = gsap.matchMedia();
 
       mm.add(MOTION_OK, () => {
+        // matchMedia re-invokes this on a query change, which can land after
+        // the band has been detached. Building triggers against an orphan is
+        // what poisons ScrollTrigger's global list.
+        if (!el.isConnected) return;
+
         gsap.utils.toArray<HTMLElement>(".stat-value", el).forEach((node) => {
           const target = Number(node.dataset.value ?? 0);
           const counter = { value: 0 };

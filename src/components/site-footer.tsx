@@ -1,4 +1,4 @@
-import Link from "next/link";
+/* eslint-disable @next/next/no-html-link-for-pages -- Footer navigation intentionally reloads the document so route-scoped GSAP state cannot leak across pages. */
 import Image from "next/image";
 import { nav, services, site } from "@/lib/site";
 
@@ -8,7 +8,7 @@ export function SiteFooter() {
       <div className="shell relative z-10 pt-24 md:pt-32">
         <div className="grid gap-14 lg:grid-cols-12">
           <div className="lg:col-span-5">
-            <Link
+            <a
               href="/"
               aria-label={`${site.name} — home`}
               className="inline-flex"
@@ -21,7 +21,7 @@ export function SiteFooter() {
                 sizes="180px"
                 className="h-auto w-[150px] brightness-0 invert sm:w-[180px]"
               />
-            </Link>
+            </a>
             <p className="mt-6 max-w-sm text-[0.9375rem] leading-relaxed text-muted-dark">
               {site.tagline}
             </p>
@@ -39,9 +39,9 @@ export function SiteFooter() {
               <ul className="mt-5 space-y-3">
                 {nav.map((item) => (
                   <li key={item.href}>
-                    <Link href={item.href} className="ul-link text-sm text-white/85">
+                    <a href={item.href} className="ul-link text-sm text-white/85">
                       {item.label}
-                    </Link>
+                    </a>
                   </li>
                 ))}
               </ul>
@@ -52,9 +52,9 @@ export function SiteFooter() {
               <ul className="mt-5 space-y-3">
                 {services.slice(0, 5).map((s) => (
                   <li key={s.id}>
-                    <Link href={`/services#${s.id}`} className="ul-link text-sm text-white/85">
+                    <a href={`/services#${s.id}`} className="ul-link text-sm text-white/85">
                       {s.title}
-                    </Link>
+                    </a>
                   </li>
                 ))}
               </ul>
@@ -88,12 +88,12 @@ export function SiteFooter() {
             © {new Date().getFullYear()} {site.name}.
           </p>
           <div className="flex gap-6">
-            <Link href="/privacy" className="ul-link">
+            <a href="/privacy" className="ul-link">
               Privacy
-            </Link>
-            <Link href="/terms" className="ul-link">
+            </a>
+            <a href="/terms" className="ul-link">
               Terms
-            </Link>
+            </a>
           </div>
         </div>
       </div>

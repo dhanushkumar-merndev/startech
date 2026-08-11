@@ -25,6 +25,11 @@ export function Process() {
       });
 
       mm.add(MOTION_OK, () => {
+        // matchMedia re-invokes this on a query change, which can land after
+        // the section has been detached. Building triggers against an orphan
+        // is what poisons ScrollTrigger's global list.
+        if (!el.isConnected) return;
+
         gsap.utils.toArray<HTMLElement>(".proc-step", el).forEach((step) => {
           gsap
             .timeline({ scrollTrigger: { trigger: step, start: "top 82%", once: true } })
@@ -35,10 +40,15 @@ export function Process() {
               0.12,
             );
         });
+      });
 
-        // The rail is drawn in proportion to scroll progress through the list.
-        // Both ends resolved as elements: a selector string left for
-        // ScrollTrigger to look up can come back null and take refresh() down.
+      // The rail is hidden below md, so its scrub trigger must be desktop-only
+      // too. Initializing a ScrollTrigger for that display:none target while
+      // the step timelines are still settling is what corrupted the trigger
+      // list on mobile navigation.
+      mm.add("(min-width: 768px) and (prefers-reduced-motion: no-preference)", () => {
+        if (!el.isConnected) return;
+
         const rail = el.querySelector<HTMLElement>(".proc-rail-fill");
         const steps = el.querySelector<HTMLElement>(".proc-steps");
         if (!rail || !steps) return;

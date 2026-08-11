@@ -20,10 +20,18 @@ export function WorkGrid({ limit, bare = false }: WorkGridProps) {
 
   useGSAP(
     () => {
+      const el = root.current;
+      if (!el) return;
+
       const mm = gsap.matchMedia();
 
       mm.add(MOTION_OK, () => {
-        gsap.utils.toArray<HTMLElement>(".work-card", root.current).forEach((card, i) => {
+        // React may briefly disconnect the outgoing route while running its
+        // development effect checks. A media-query callback can fire during
+        // that window, so do not create triggers for the detached section.
+        if (!el.isConnected) return;
+
+        gsap.utils.toArray<HTMLElement>(".work-card", el).forEach((card, i) => {
           gsap.from(card, {
             y: 60,
             autoAlpha: 0,
@@ -37,7 +45,7 @@ export function WorkGrid({ limit, bare = false }: WorkGridProps) {
 
         // The artwork drifts inside its frame as the card crosses the
         // viewport, which gives the grid depth without moving the layout.
-        gsap.utils.toArray<HTMLElement>(".work-art", root.current).forEach((art) => {
+        gsap.utils.toArray<HTMLElement>(".work-art", el).forEach((art) => {
           gsap.fromTo(
             art,
             { yPercent: -8 },

@@ -38,6 +38,10 @@ export function Reveal({
       if (!el) return;
 
       const targets = stagger ? Array.from(el.children) : el;
+      // A staggered block with no children gives GSAP an empty target list, and
+      // it still builds the ScrollTrigger below — one with no element, whose
+      // end never resolves and which refresh() then recurses into forever.
+      if (Array.isArray(targets) && !targets.length) return;
 
       // With a stagger the wrapper itself must be visible up front, otherwise
       // it would hide the children we are about to animate individually.
