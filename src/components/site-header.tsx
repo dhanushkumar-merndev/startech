@@ -30,19 +30,37 @@ export function SiteHeader() {
 
   useGSAP(
     () => {
-      // Reading progress, scrubbed against the whole document.
-      gsap.fromTo(
-        ".hdr-progress",
-        { scaleX: 0 },
-        {
-          scaleX: 1,
-          ease: "none",
-          transformOrigin: "left center",
-          scrollTrigger: { start: 0, end: () => ScrollTrigger.maxScroll(window), scrub: 0.3 },
-        },
-      );
+      const header = root.current;
+      if (!header) return;
 
-      const bar = root.current?.querySelector<HTMLElement>(".hdr-bar");
+      // Reading progress, scrubbed against the whole document.
+      //
+      // Resolved as an element rather than left as a scoped selector string. A
+      // scoped selector matches nothing once the scope ref is detached, and
+      // gsap.fromTo still builds the ScrollTrigger for that empty target list —
+      // one with no trigger element to fall back to, which then throws inside
+      // refresh() and takes the whole route commit down with it. The explicit
+      // trigger keeps it valid even if the bar itself ever goes missing.
+      const progress = header.querySelector<HTMLElement>(".hdr-progress");
+      if (progress) {
+        gsap.fromTo(
+          progress,
+          { scaleX: 0 },
+          {
+            scaleX: 1,
+            ease: "none",
+            transformOrigin: "left center",
+            scrollTrigger: {
+              trigger: document.body,
+              start: 0,
+              end: () => ScrollTrigger.maxScroll(window),
+              scrub: 0.3,
+            },
+          },
+        );
+      }
+
+      const bar = header.querySelector<HTMLElement>(".hdr-bar");
       if (!bar) return;
 
       const mm = gsap.matchMedia();

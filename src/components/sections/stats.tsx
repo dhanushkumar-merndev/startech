@@ -15,13 +15,19 @@ export function Stats() {
 
   useGSAP(
     () => {
+      // A detached scope makes the selectors below match nothing and leaves
+      // `trigger` null, and GSAP still builds a ScrollTrigger for that — one
+      // that throws inside refresh(). Bail before creating anything.
+      const el = root.current;
+      if (!el) return;
+
       // The figures are server-rendered at their true value, so a visitor who
       // has asked for less motion simply keeps them — nothing to animate down
       // from and nothing to restore.
       const mm = gsap.matchMedia();
 
       mm.add(MOTION_OK, () => {
-        gsap.utils.toArray<HTMLElement>(".stat-value", root.current).forEach((node) => {
+        gsap.utils.toArray<HTMLElement>(".stat-value", el).forEach((node) => {
           const target = Number(node.dataset.value ?? 0);
           const counter = { value: 0 };
 
@@ -33,7 +39,7 @@ export function Stats() {
             onUpdate: () => {
               node.textContent = String(Math.round(counter.value));
             },
-            scrollTrigger: { trigger: root.current, start: "top 78%", once: true },
+            scrollTrigger: { trigger: el, start: "top 78%", once: true },
           });
         });
 
@@ -42,7 +48,7 @@ export function Stats() {
           autoAlpha: 0,
           duration: 1,
           stagger: 0.09,
-          scrollTrigger: { trigger: root.current, start: "top 78%", once: true },
+          scrollTrigger: { trigger: el, start: "top 78%", once: true },
         });
       });
 

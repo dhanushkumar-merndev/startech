@@ -12,6 +12,12 @@ export function Process() {
 
   useGSAP(
     () => {
+      // A detached scope leaves the selectors below matching nothing, and a
+      // ScrollTrigger built against a trigger that resolves to null throws
+      // inside refresh(). Bail before anything is created.
+      const el = root.current;
+      if (!el) return;
+
       const mm = gsap.matchMedia();
 
       mm.add(MOTION_REDUCED, () => {
@@ -19,7 +25,7 @@ export function Process() {
       });
 
       mm.add(MOTION_OK, () => {
-        gsap.utils.toArray<HTMLElement>(".proc-step", root.current).forEach((step) => {
+        gsap.utils.toArray<HTMLElement>(".proc-step", el).forEach((step) => {
           gsap
             .timeline({ scrollTrigger: { trigger: step, start: "top 82%", once: true } })
             .from(step, { y: 44, autoAlpha: 0, duration: 1, ease: EASE })
@@ -31,15 +37,21 @@ export function Process() {
         });
 
         // The rail is drawn in proportion to scroll progress through the list.
+        // Both ends resolved as elements: a selector string left for
+        // ScrollTrigger to look up can come back null and take refresh() down.
+        const rail = el.querySelector<HTMLElement>(".proc-rail-fill");
+        const steps = el.querySelector<HTMLElement>(".proc-steps");
+        if (!rail || !steps) return;
+
         gsap.fromTo(
-          ".proc-rail-fill",
+          rail,
           { scaleY: 0 },
           {
             scaleY: 1,
             ease: "none",
             transformOrigin: "top center",
             scrollTrigger: {
-              trigger: ".proc-steps",
+              trigger: steps,
               start: "top 70%",
               end: "bottom 70%",
               scrub: 0.4,
