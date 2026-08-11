@@ -1,5 +1,4 @@
-/* eslint-disable @next/next/no-html-link-for-pages -- Footer navigation intentionally reloads the document so route-scoped GSAP state cannot leak across pages. */
-import Image from "next/image";
+import { FooterBrandCard } from "@/components/footer-brand-card";
 import { nav, services, site } from "@/lib/site";
 
 export function SiteFooter() {
@@ -7,31 +6,7 @@ export function SiteFooter() {
     <footer className="grain relative overflow-hidden bg-ink text-white">
       <div className="shell relative z-10 pt-24 md:pt-32">
         <div className="grid gap-14 lg:grid-cols-12">
-          <div className="lg:col-span-5">
-            <a
-              href="/"
-              aria-label={`${site.name} — home`}
-              className="inline-flex"
-            >
-              <Image
-                src="/logo.png"
-                alt=""
-                width={749}
-                height={226}
-                sizes="180px"
-                className="h-auto w-[150px] brightness-0 invert sm:w-[180px]"
-              />
-            </a>
-            <p className="mt-6 max-w-sm text-[0.9375rem] leading-relaxed text-muted-dark">
-              {site.tagline}
-            </p>
-            <a
-              href={`mailto:${site.email}`}
-              className="ul-link mt-8 inline-block font-display text-[clamp(1.4rem,3vw,2.1rem)] tracking-[-0.035em]"
-            >
-              {site.email}
-            </a>
-          </div>
+          <FooterBrandCard />
 
           <div className="grid grid-cols-2 gap-10 sm:grid-cols-3 lg:col-span-7">
             <div>
