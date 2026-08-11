@@ -49,22 +49,43 @@ export function ScrollManager() {
   }, []);
 
   useEffect(() => {
+    let painted = 0;
     const frame = requestAnimationFrame(() => {
       // Route changes should never inherit a locked menu state or the old
       // scroll position. Reset both before measuring the incoming page.
       document.body.style.overflow = "";
       setSmoothScrollLocked(false);
       lenisRef.current?.start();
-      lenisRef.current?.scrollTo(0, { immediate: true, force: true });
-      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-      requestAnimationFrame(() => {
-        // Lenis has a virtual scroll position; make a second immediate reset
-        // after the incoming route has painted so it cannot restore the old one.
+
+      // A link carrying a hash owns where the page lands. Resetting to the top
+      // regardless is what made the footer's /services#crm style links all
+      // arrive at the page header instead of their section.
+      const id = decodeURIComponent(window.location.hash.slice(1));
+      const anchor = id ? document.getElementById(id) : null;
+
+      if (!anchor) {
         lenisRef.current?.scrollTo(0, { immediate: true, force: true });
+        window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      }
+
+      painted = requestAnimationFrame(() => {
+        // Measure before moving: the reveal triggers on the incoming page fix
+        // their start positions during refresh, so jumping to an anchor first
+        // would settle them against a layout that is about to change.
         ScrollTrigger.refresh();
+        if (anchor) {
+          lenisRef.current?.scrollTo(anchor, { immediate: true, force: true, offset: -96 });
+        } else {
+          // Lenis has a virtual scroll position; make a second immediate reset
+          // after the incoming route has painted so it cannot restore the old one.
+          lenisRef.current?.scrollTo(0, { immediate: true, force: true });
+        }
       });
     });
-    return () => cancelAnimationFrame(frame);
+    return () => {
+      cancelAnimationFrame(frame);
+      cancelAnimationFrame(painted);
+    };
   }, [pathname]);
 
   useEffect(() => {

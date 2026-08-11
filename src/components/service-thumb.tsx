@@ -443,20 +443,38 @@ function CrmIllustration({ index, ink, accent, faint }: IllustrationProps) {
    6 Push & Analytics       │ 7 App Store Launch
    ═══════════════════════════════════════════════════════════════════════════ */
 
-function MobileIllustration({ index, ink, accent, faint }: IllustrationProps) {
-  // Shared phone shell
-  const Phone = ({ children, x = 50 }: { children: React.ReactNode; x?: number }) => (
+/**
+ * Shared phone shell for the mobile illustrations.
+ *
+ * Declared at module scope rather than inside MobileIllustration: a component
+ * created during render is a brand new type on every pass, so React unmounts
+ * and rebuilds the entire phone subtree each time instead of updating it.
+ */
+function Phone({
+  children,
+  ink,
+  faint,
+  x = 50,
+}: {
+  children: React.ReactNode;
+  ink: string;
+  faint: string;
+  x?: number;
+}) {
+  return (
     <>
       <rect x={x} y="6" width="60" height="88" rx="10" fill="white" stroke={ink} />
       <rect x={x + 16} y="10" width="28" height="4" rx="2" fill={faint} />
       {children}
     </>
   );
+}
 
+function MobileIllustration({ index, ink, accent, faint }: IllustrationProps) {
   if (index === 0) {
     // iOS — phone with iOS-style UI (status bar, rounded cards)
     return (
-      <Phone>
+      <Phone ink={ink} faint={faint}>
         <rect x="56" y="20" width="48" height="8" rx="1" fill={ink} />
         <rect x="56" y="32" width="48" height="20" rx="6" fill={faint} stroke={ink} strokeWidth="0.4" />
         <rect x="60" y="36" width="24" height="3" rx="1" fill={ink} />
@@ -474,7 +492,7 @@ function MobileIllustration({ index, ink, accent, faint }: IllustrationProps) {
   if (index === 1) {
     // Android — phone with Material-style top bar and FAB
     return (
-      <Phone>
+      <Phone ink={ink} faint={faint}>
         <rect x="50" y="18" width="60" height="12" rx="0" fill={accent} opacity="0.15" />
         <rect x="56" y="22" width="30" height="4" rx="1" fill={accent} />
         {/* Content cards */}
@@ -490,7 +508,7 @@ function MobileIllustration({ index, ink, accent, faint }: IllustrationProps) {
   if (index === 2) {
     // React Native — phone with code brackets
     return (
-      <Phone>
+      <Phone ink={ink} faint={faint}>
         <rect x="56" y="20" width="48" height="56" rx="4" fill={faint} />
         {/* Code brackets */}
         <text x="66" y="42" fontSize="14" fill={accent} fontFamily="monospace" fontWeight="600">{"<"}</text>
@@ -508,7 +526,7 @@ function MobileIllustration({ index, ink, accent, faint }: IllustrationProps) {
   if (index === 3) {
     // Flutter — phone with layered widget cards
     return (
-      <Phone>
+      <Phone ink={ink} faint={faint}>
         <rect x="56" y="20" width="48" height="10" rx="2" fill={accent} opacity="0.15" />
         {/* Layered widgets */}
         <rect x="54" y="34" width="44" height="18" rx="4" fill={faint} stroke={ink} strokeWidth="0.4" />
@@ -524,7 +542,7 @@ function MobileIllustration({ index, ink, accent, faint }: IllustrationProps) {
   if (index === 4) {
     // Offline-First — phone with cloud-offline icon
     return (
-      <Phone>
+      <Phone ink={ink} faint={faint}>
         <rect x="56" y="20" width="48" height="48" rx="4" fill={faint} />
         {/* Cloud with X */}
         <path d="M68 44 A8 8 0 0 1 70 30 A10 10 0 0 1 90 30 A8 8 0 0 1 92 44 Z" fill="none" stroke={ink} strokeWidth="1.2" />
@@ -543,7 +561,7 @@ function MobileIllustration({ index, ink, accent, faint }: IllustrationProps) {
   if (index === 5) {
     // Payments & UPI — phone with payment card & rupee
     return (
-      <Phone>
+      <Phone ink={ink} faint={faint}>
         {/* Card */}
         <rect x="56" y="22" width="48" height="28" rx="4" fill={ink} opacity="0.08" stroke={ink} strokeWidth="0.5" />
         <rect x="60" y="26" width="14" height="8" rx="2" fill={accent} opacity="0.4" />
@@ -564,7 +582,7 @@ function MobileIllustration({ index, ink, accent, faint }: IllustrationProps) {
   if (index === 6) {
     // Push & Analytics — phone with notification bell and chart
     return (
-      <Phone>
+      <Phone ink={ink} faint={faint}>
         {/* Notification */}
         <rect x="54" y="18" width="52" height="18" rx="4" fill="white" stroke={accent} strokeWidth="0.6" />
         <circle cx="62" cy="27" r="4" fill={accent} opacity="0.2" />
@@ -583,7 +601,7 @@ function MobileIllustration({ index, ink, accent, faint }: IllustrationProps) {
   }
   // index === 7: App Store Launch — phone with star rating
   return (
-    <Phone>
+    <Phone ink={ink} faint={faint}>
       {/* App icon */}
       <rect x="66" y="22" width="28" height="28" rx="8" fill={accent} opacity="0.2" stroke={accent} strokeWidth="0.6" />
       <rect x="74" y="30" width="12" height="12" rx="3" fill={accent} opacity="0.4" />

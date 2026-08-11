@@ -307,6 +307,11 @@ export function SiteHeader() {
         id="mobile-nav"
         ref={drawer}
         data-lenis-prevent
+        // clip-path hides the panel but leaves it hit-testable and in the tab
+        // order, so a closed drawer still covered the whole mobile viewport if
+        // the imperative pointerEvents write below ever fell out of sync — and
+        // its links stayed keyboard-reachable regardless. inert closes both.
+        inert={!open}
         className="fixed inset-0 z-40 bg-paper xl:hidden"
         style={{ clipPath: "inset(0 0 100% 0)", pointerEvents: "none" }}
       >
