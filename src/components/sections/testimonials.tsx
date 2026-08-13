@@ -72,7 +72,16 @@ export function Testimonials() {
         </Reveal>
 
         <blockquote className="mt-10 max-w-4xl">
-          <p className="quote-text split-hold font-display text-[clamp(1.5rem,3.6vw,2.9rem)] leading-[1.12] tracking-[-0.035em]">
+          {/* Keyed on the active index so React remounts a fresh node per
+              quote instead of patching text into place. SplitText shreds
+              this paragraph into word spans outside React's tracking, so an
+              in-place update lands on a detached text node and the quote
+              visibly freezes on the previous slide while the name/dots
+              still advance. */}
+          <p
+            key={i}
+            className="quote-text split-hold font-display text-[clamp(1.5rem,3.6vw,2.9rem)] leading-[1.12] tracking-[-0.035em]"
+          >
             <span className="text-brand">“</span>
             {active.quote}
             <span className="text-brand">”</span>
