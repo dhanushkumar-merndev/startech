@@ -27,7 +27,9 @@ export function Testimonials() {
   // word rather than line keeps the cadence readable at this size.
   useGSAP(
     () => {
-      const quote = root.current?.querySelector<HTMLElement>(".quote-text");
+      const quote = root.current?.querySelector<HTMLElement>(
+        '.quote-text[data-active="true"]',
+      );
       if (!quote || !fontsReady) return;
 
       const split = SplitText.create(quote, { type: "words", aria: "auto" });
@@ -72,20 +74,32 @@ export function Testimonials() {
         </Reveal>
 
         <blockquote className="mt-10 max-w-4xl">
-          {/* Keyed on the active index so React remounts a fresh node per
-              quote instead of patching text into place. SplitText shreds
-              this paragraph into word spans outside React's tracking, so an
-              in-place update lands on a detached text node and the quote
-              visibly freezes on the previous slide while the name/dots
-              still advance. */}
-          <p
-            key={i}
-            className="quote-text split-hold font-display text-[clamp(1.5rem,3.6vw,2.9rem)] leading-[1.12] tracking-[-0.035em]"
-          >
-            <span className="text-brand">“</span>
-            {active.quote}
-            <span className="text-brand">”</span>
-          </p>
+          {/* Every quote shares one grid cell, so the tallest quote reserves
+              the row height at each responsive width. This keeps the author
+              and controls stationary when the active quote changes. */}
+          <div className="grid">
+            <p
+              key={i}
+              data-active="true"
+              className="quote-text split-hold col-start-1 row-start-1 font-display text-[clamp(1.5rem,3.6vw,2.9rem)] leading-[1.12] tracking-[-0.035em]"
+            >
+              <span className="text-brand">“</span>
+              {active.quote}
+              <span className="text-brand">”</span>
+            </p>
+
+            {testimonials.map((testimonial) => (
+              <p
+                key={`sizer-${testimonial.name}`}
+                aria-hidden="true"
+                className="invisible col-start-1 row-start-1 font-display text-[clamp(1.5rem,3.6vw,2.9rem)] leading-[1.12] tracking-[-0.035em]"
+              >
+                <span className="text-brand">“</span>
+                {testimonial.quote}
+                <span className="text-brand">”</span>
+              </p>
+            ))}
+          </div>
           <footer className="quote-attrib mt-9 text-[0.9375rem]">
             <span className="font-medium">{active.name}</span>
             <span className="text-muted"> — {active.role}</span>
