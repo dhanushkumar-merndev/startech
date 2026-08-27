@@ -22,7 +22,7 @@ const body = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL("https://startechindia.com"),
   title: {
-    default: `${site.name} — Websites, CRM & Software Development`,
+    default: `${site.name} —  CRM & Software Development`,
     template: `%s — ${site.name}`,
   },
   description: site.tagline,
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_IN",
     siteName: site.name,
-    title: `${site.name} — Websites, CRM & Software Development`,
+    title: `${site.name} —  CRM & Software Development`,
     description: site.tagline,
   },
   twitter: { card: "summary_large_image" },
