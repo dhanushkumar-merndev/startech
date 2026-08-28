@@ -2,10 +2,10 @@ export const site = {
   name: "Star Tech India",
   short: "Star Tech",
   tagline: "Websites, CRM, mobile apps and business automation built for growing businesses.",
-  email: "hello@startechindia.com",
-  phone: "+91 97430 30555",
+  email: "startechindia.dev@gmail.com",
+  phone: "+91 96069 52972",
   /** Same line in the digits-only form wa.me requires (country code, no +). */
-  whatsapp: "919743030555",
+  whatsapp: "919606952972",
   address: [
     "No. 18, 1st Floor, 1st Main",
     "BSK 1st Stage, Srinivasa Nagar",
