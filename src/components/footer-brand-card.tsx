@@ -150,7 +150,7 @@ export function FooterBrandCard() {
       </p>
       <a
         href={`mailto:${site.email}`}
-        className="ul-link mt-8 inline-block break-words font-display text-[clamp(1.25rem,3vw,2.1rem)] tracking-[-0.035em] text-ink transition-colors duration-300 hover:text-brand"
+        className="ul-link mt-8 block max-w-full break-words font-display text-[clamp(1.4rem,2.6vw,2rem)] tracking-[-0.035em] text-ink transition-colors duration-300 hover:text-brand"
       >
         {site.email}
       </a>
